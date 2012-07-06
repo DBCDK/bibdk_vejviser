@@ -1,0 +1,4 @@
+name = Bibdk Vejviser
+description = "Gives the ability to search for libraries"
+package = "Bibliotek.dk"
+core = 7.x
