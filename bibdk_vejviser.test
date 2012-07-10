@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Testfile for the bibdk_vejviser module 
+ * Testing: Ting settings 
+ */
+class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Ting Settings page',
+      'description' => t('Test if OpenAgency URL field is added to Ting Settings page'),
+      'group' => 'Bibdk Vejviser',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('bibdk_vejviser', 'ting'));
+  }
+
+  public function testTingSettings() {
+    $admin = $this->drupalCreateUser(array('administer ting settings'));
+    $this->drupalLogin($admin);
+
+    $this->drupalGet('admin/config/ting/settings');
+    $this->assertText('OpenAgency URL', t('OpenAgency URL field exsist in the Ting settings page'));
+  }
+
+}

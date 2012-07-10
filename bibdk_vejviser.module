@@ -45,6 +45,11 @@ function bibdk_vejviser_block_view($delta = '') {
   }
 }
 
+
+/**
+ * Create the form array
+ * @return type 
+ */
 function bibdk_vejviser_form() {
   $form = array();
   $form['name'] = array(
@@ -71,6 +76,11 @@ function bibdk_vejviser_form() {
   return $form;
 }
 
+/**
+ * Validate the the form input
+ * @param type $form
+ * @param type $form_state 
+ */
 function bibdk_vejviser_form_validate(&$form, &$form_state) {
   $name = $form_state['values']['name'];
   $zip = $form_state['values']['zip'];
@@ -82,10 +92,16 @@ function bibdk_vejviser_form_validate(&$form, &$form_state) {
     module_load_include('inc', 'ting_openformat','ting_openformat.search_client');
     $client = new ting_client_class();
     $result = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
+    
     dpm($result);
   }
 }
 
+/**
+ * Validate the name form variable. Method might be unused if only one searchfield is used
+ * @param type $name
+ * @return boolean 
+ */
 function bibdk_vejviser_validate_name($name) {
   if (empty($name)) {
     return FALSE;
@@ -93,6 +109,11 @@ function bibdk_vejviser_validate_name($name) {
   return TRUE;
 }
 
+/**
+ * Validate the zip form variable. Method might be unused if only one searchfield is used
+ * @param type $name
+ * @return boolean 
+ */
 function bibdk_vejviser_validate_zip($zip) {
   if (empty($zip)) {
     return FALSE;
@@ -100,6 +121,11 @@ function bibdk_vejviser_validate_zip($zip) {
   return TRUE;
 }
 
+/**
+ * Validate the city form variable. Method might be unused if only one searchfield is used
+ * @param type $name
+ * @return boolean 
+ */
 function bibdk_vejviser_validate_city($city) {
   if (empty($city)) {
     return FALSE;
