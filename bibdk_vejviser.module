@@ -10,12 +10,12 @@
  * Creates a field for adding a URL for the Ting Agency Serach webservice
  */
 function bibdk_vejviser_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
-  $form['ting']['vejviser'] = array(
+  $form['ting']['agency_search_url'] = array(
     '#type' => 'textfield',
-    '#title' => 'OpenAgency URL',
-    '#description' => t('URL to the Ting agencysearch webservice, e.g. http://openagency.addi.dk/1.6/'),
+    '#title' => t('OpenAgency URL'),
+    '#description' => t('URL to the Ting agency search webservice, e.g. http://openagency.addi.dk/1.6/'),
     '#required' => TRUE,
-    '#default_value' => variable_get('ting_agency_search_url', ''),
+    '#default_value' => variable_get('agency_search_url', ''),
   );
 }
 
@@ -38,7 +38,6 @@ function bibdk_vejviser_block_info() {
 function bibdk_vejviser_block_view($delta = '') {
   switch ($delta) {
     case 'bibdk_vejviser':
-
       $block['title'] = t('Find Library');
       $block['content'] = drupal_get_form('bibdk_vejviser_form');
       return $block;
@@ -72,6 +71,38 @@ function bibdk_vejviser_form() {
   return $form;
 }
 
-function bibdk_vejviser_form_submit($form, $form_state) {
-  drupal_set_message('form submit');
+function bibdk_vejviser_form_validate(&$form, &$form_state) {
+  $name = $form_state['values']['name'];
+  $zip = $form_state['values']['zip'];
+  $city = $form_state['values']['city'];
+  
+  if( !bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
+  } else {
+    module_load_include('inc', 'ting_openformat','ting_openformat.search_client');
+    $client = new ting_client_class();
+    $result = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
+    dpm($result);
+  }
+}
+
+function bibdk_vejviser_validate_name($name) {
+  if (empty($name)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+function bibdk_vejviser_validate_zip($zip) {
+  if (empty($zip)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+function bibdk_vejviser_validate_city($city) {
+  if (empty($city)) {
+    return FALSE;
+  }
+  return TRUE;
 }
