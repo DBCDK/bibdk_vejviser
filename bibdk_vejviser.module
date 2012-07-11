@@ -82,9 +82,9 @@ function bibdk_vejviser_form() {
  * @param type $form_state 
  */
 function bibdk_vejviser_form_validate(&$form, &$form_state) {
-  $name = $form_state['values']['name'];
-  $zip = $form_state['values']['zip'];
-  $city = $form_state['values']['city'];
+  $name = check_plain($form_state['values']['name']);
+  $zip = check_plain($form_state['values']['zip']);
+  $city = check_plain($form_state['values']['city']);
   
   if( !bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');

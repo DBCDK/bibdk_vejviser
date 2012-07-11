@@ -28,3 +28,37 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
   }
 
 }
+
+/**
+ * Testing: Validation of inputfields
+ */
+class BibdkVejviserTestCaseEmptyFormSubmit extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Input fields',
+      'description' => t('Verify that input is validated'),
+      'group' => 'Bibdk Vejviser',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('bibdk_vejviser'));
+    
+    $admin = $this->drupalCreateUser(array('administer blocks'));
+    $this->drupalLogin($admin);
+    
+    $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_bibdk_vejviser][region]' => 'content'), t('Save blocks'));
+    $this->drupalLogout();
+  }
+  
+  public function testBlockPresence(){
+    $this->drupalGet('ding_frontpage');
+    $this->assertText('Find Library', t('Block is present at frontpage'));
+  }
+  
+  public function testNoUserInput(){
+    $this->drupalPost('ding_frontpage', NULL, t('Search'));
+    $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
+  }
+}
