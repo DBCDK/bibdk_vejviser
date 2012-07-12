@@ -45,13 +45,33 @@ function bibdk_vejviser_block_view($delta = '') {
   }
 }
 
+function bibdk_vejviser_menu() {
+  $items['vejviser'] = array(
+    'title' => 'Vejviser',
+    'page callback' => 'bibdk_vejviser_execute_agency_search',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function bibdk_vejviser_theme() {
+  return array(
+    'bibdk_vejviser' => array(
+      'variables' => array(),
+      'template' => 'template/bibdk_vejviser',
+    ),
+  );
+}
 
 /**
  * Create the form array
  * @return type 
  */
-function bibdk_vejviser_form() {
-  $form = array();
+function bibdk_vejviser_form($form) {  
+  
   $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -71,29 +91,52 @@ function bibdk_vejviser_form() {
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
-    '#executes_submit_callback' => TRUE,
+     '#executes_submit_callback' => TRUE,
   );
   return $form;
 }
 
-/**
- * Validate the the form input
- * @param type $form
- * @param type $form_state 
- */
-function bibdk_vejviser_form_validate(&$form, &$form_state) {
+function bibdk_vejviser_form_submit(&$form, &$form_state) {
   $name = check_plain($form_state['values']['name']);
   $zip = check_plain($form_state['values']['zip']);
   $city = check_plain($form_state['values']['city']);
   
-  if( !bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
+  if (!bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
-  } else {
-    module_load_include('inc', 'ting_openformat','ting_openformat.search_client');
-    $client = new ting_client_class();
-    $result = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
-    
-    dpm($result);
+  }
+  else {
+    $query = array('name' => $name, 'zip' => $zip, 'city' => $city);
+    $json = json_encode($query);
+    drupal_goto('vejviser/'.  $json);
+  }
+}
+
+function bibdk_vejviser_execute_agency_search($json = NULL) {  
+  if(!$json){
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'warning');
+    return array();
+  }
+  
+  $query = json_decode($json);
+  
+  module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
+  $client = new ting_client_class();
+  $resp = $client->do_agency_search(array('agencyName' => $query->name, 'postalCode' => $query->zip, 'city' => $query->city));
+  $result = bibdk_vejviser_handle_response($resp);
+ 
+  $markup = theme('bibdk_vejviser', array('result' => $result));
+
+  return $markup;
+}
+
+function bibdk_vejviser_handle_response($response) {
+  
+  if (isset($response['error']) && $response['error']) {
+    //TODO handle error
+  }
+  else if (isset($response['libraries'])) {
+    $result = $response['libraries'];
+    return $result;
   }
 }
 
