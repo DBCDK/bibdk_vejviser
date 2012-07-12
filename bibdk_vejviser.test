@@ -15,15 +15,25 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
     );
   }
 
+  /**
+   * Setting up the test 
+   */
   public function setUp() {
     parent::setUp(array('bibdk_vejviser', 'ting'));
   }
 
+  /**
+   * Performing the test.
+   */
   public function testTingSettings() {
+    //Creating a user and giving it the ability to administer ting settings 
     $admin = $this->drupalCreateUser(array('administer ting settings'));
+    //Logging in the user
     $this->drupalLogin($admin);
 
+    //Navigating to a specific path
     $this->drupalGet('admin/config/ting/settings');
+    //Ensuring that some specific text is present on the page
     $this->assertText('OpenAgency URL', t('OpenAgency URL field exsist in the Ting settings page'));
   }
 
@@ -52,11 +62,17 @@ class BibdkVejviserTestCaseEmptyFormSubmit extends DrupalWebTestCase {
     $this->drupalLogout();
   }
   
+  /**
+   * Ensuring that the block is visible 
+   */
   public function testBlockPresence(){
     $this->drupalGet('ding_frontpage');
     $this->assertText('Find Library', t('Block is present at frontpage'));
   }
   
+  /**
+   * Testing that an error message will appear if no user input is given 
+   */
   public function testNoUserInput(){
     $this->drupalPost('ding_frontpage', NULL, t('Search'));
     $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
