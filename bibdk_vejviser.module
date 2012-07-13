@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Module file. Gives the the users the ability to search for libraries
+ * Module file. Gives the the users ability to search for libraries through the OpenAgency webservice
  */
 
 /**
@@ -45,6 +45,10 @@ function bibdk_vejviser_block_view($delta = '') {
   }
 }
 
+/**
+ * Implements hook_menu();
+ * @return boolean 
+ */
 function bibdk_vejviser_menu() {
   $items['vejviser'] = array(
     'title' => 'Vejviser',
@@ -67,11 +71,11 @@ function bibdk_vejviser_theme() {
 }
 
 /**
- * Create the form array
- * @return type 
+ * Creates the form array
+ * @return array 
  */
-function bibdk_vejviser_form($form) {  
-  
+function bibdk_vejviser_form($form) {
+
   $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -91,51 +95,70 @@ function bibdk_vejviser_form($form) {
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
-     '#executes_submit_callback' => TRUE,
+    '#executes_submit_callback' => TRUE,
   );
   return $form;
 }
 
+/**
+ * Called when form is submitted. Validating the input, json_encoding the input array and passes it to /vejviser
+ * @param type $form
+ * @param type $form_state 
+ */
 function bibdk_vejviser_form_submit(&$form, &$form_state) {
   $name = check_plain($form_state['values']['name']);
   $zip = check_plain($form_state['values']['zip']);
   $city = check_plain($form_state['values']['city']);
-  
+
+  //If all input fields are empty notify the user
   if (!bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
   }
   else {
     $query = array('name' => $name, 'zip' => $zip, 'city' => $city);
+    //passing the search criterias as a json string. However, there might a better way to this.
     $json = json_encode($query);
-    drupal_goto('vejviser/'.  $json);
+    drupal_goto('vejviser/' . $json);
   }
 }
 
-function bibdk_vejviser_execute_agency_search($json = NULL) {  
-  if(!$json){
+/**
+ * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
+ * There might be a better way for passing the search criterias
+ * @param String $json
+ * @return array 
+ */
+function bibdk_vejviser_execute_agency_search($json = NULL) {
+  if (!$json) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'warning');
     return array();
   }
-  
+
   $query = json_decode($json);
-  
+
   module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
   $client = new ting_client_class();
   $resp = $client->do_agency_search(array('agencyName' => $query->name, 'postalCode' => $query->zip, 'city' => $query->city));
   $result = bibdk_vejviser_handle_response($resp);
- 
+
   $markup = theme('bibdk_vejviser', array('result' => $result));
 
   return $markup;
 }
 
+/**
+ * Handling the response.
+ * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere
+ * @param array $response
+ * @return array 
+ */
 function bibdk_vejviser_handle_response($response) {
-  
+
   if (isset($response['error']) && $response['error']) {
     //TODO handle error
   }
   else if (isset($response['libraries'])) {
-    $result = $response['libraries'];
+    $result = $response;
     return $result;
   }
 }
