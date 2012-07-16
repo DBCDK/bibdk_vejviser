@@ -116,9 +116,7 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
   }
   else {
     $query = array('name' => $name, 'zip' => $zip, 'city' => $city);
-    //passing the search criterias as a json string. However, there might a better way to this.
-    $json = json_encode($query);
-    drupal_goto('vejviser/' . $json);
+    drupal_goto('vejviser', array('query' => $query));
   }
 }
 
@@ -128,27 +126,31 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
  * @param String $json
  * @return array 
  */
-function bibdk_vejviser_execute_agency_search($json = NULL) {
-  if (!$json) {
-    drupal_set_message(t('You haven\'t entered any search criteria.'), 'warning');
-    return array();
+function bibdk_vejviser_execute_agency_search() {
+  if (isset($_REQUEST['name']) || isset($_REQUEST['zip']) || isset($_REQUEST['city'])) {
+    $name = $_REQUEST['name'];
+    $zip = $_REQUEST['zip'];
+    $city = $_REQUEST['city'];
+  }
+  
+  $result = array();
+  
+  if (isset($name) || isset($zip) || isset($city)) {
+    module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
+    $client = new ting_client_class();
+    $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
+    $result = bibdk_vejviser_handle_response($resp);
+  } else {
+    //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
   }
 
-  $query = json_decode($json);
-
-  module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
-  $client = new ting_client_class();
-  $resp = $client->do_agency_search(array('agencyName' => $query->name, 'postalCode' => $query->zip, 'city' => $query->city));
-  $result = bibdk_vejviser_handle_response($resp);
-
   $markup = theme('bibdk_vejviser', array('result' => $result));
-
   return $markup;
 }
 
 /**
  * Handling the response.
- * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere
+ * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere and deprecate this function
  * @param array $response
  * @return array 
  */
