@@ -47,7 +47,7 @@ function bibdk_vejviser_block_view($delta = '') {
 
 /**
  * Implements hook_menu();
- * @return boolean 
+ * @return boolean
  */
 function bibdk_vejviser_menu() {
   $items['vejviser'] = array(
@@ -72,27 +72,27 @@ function bibdk_vejviser_theme() {
 
 /**
  * Creates the form array
- * @return array 
+ * @return array
  */
 function bibdk_vejviser_form($form) {
 
-  $form['name'] = array(
+  $form['openagency_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
     '#size' => 5,
   );
-  $form['zip'] = array(
+  $form['openagency_zip'] = array(
     '#type' => 'textfield',
     '#title' => t('Zip'),
     '#size' => 5,
   );
-  $form['city'] = array(
+  $form['openagency_city'] = array(
     '#type' => 'textfield',
     '#title' => t('City'),
     '#size' => 5,
   );
 
-  $form['submit'] = array(
+  $form['openagency_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
@@ -103,19 +103,19 @@ function bibdk_vejviser_form($form) {
 /**
  * Called when form is submitted. Validating the input, json_encoding the input array and passes it to /vejviser
  * @param type $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function bibdk_vejviser_form_submit(&$form, &$form_state) {
-  $name = check_plain($form_state['values']['name']);
-  $zip = check_plain($form_state['values']['zip']);
-  $city = check_plain($form_state['values']['city']);
+  $name = check_plain($form_state['values']['openagency_name']);
+  $zip = check_plain($form_state['values']['openagency_zip']);
+  $city = check_plain($form_state['values']['openagency_city']);
 
   //If all input fields are empty notify the user
   if (!bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
   }
   else {
-    $query = array('name' => $name, 'zip' => $zip, 'city' => $city);
+    $query = array('openagency_name' => $name, 'openagency_zip' => $zip, 'openagency_city' => $city);
     drupal_goto('vejviser', array('query' => $query));
   }
 }
@@ -124,17 +124,17 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
  * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
  * There might be a better way for passing the search criterias
  * @param String $json
- * @return array 
+ * @return array
  */
 function bibdk_vejviser_execute_agency_search() {
-  if (isset($_REQUEST['name']) || isset($_REQUEST['zip']) || isset($_REQUEST['city'])) {
-    $name = $_REQUEST['name'];
-    $zip = $_REQUEST['zip'];
-    $city = $_REQUEST['city'];
+  if (isset($_REQUEST['openagency_name']) || isset($_REQUEST['openagency_zip']) || isset($_REQUEST['openagency_city'])) {
+    $name = check_plain($_REQUEST['openagency_name']);
+    $zip = check_plain($_REQUEST['openagency_zip']);
+    $city = check_plain($_REQUEST['openagency_city']);
   }
-  
+
   $result = array();
-  
+
   if (isset($name) || isset($zip) || isset($city)) {
     module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
     $client = new ting_client_class();
@@ -152,7 +152,7 @@ function bibdk_vejviser_execute_agency_search() {
  * Handling the response.
  * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere and deprecate this function
  * @param array $response
- * @return array 
+ * @return array
  */
 function bibdk_vejviser_handle_response($response) {
 
@@ -168,7 +168,7 @@ function bibdk_vejviser_handle_response($response) {
 /**
  * Validate the name form variable. Method might be unused if only one searchfield is used
  * @param type $name
- * @return boolean 
+ * @return boolean
  */
 function bibdk_vejviser_validate_name($name) {
   if (empty($name)) {
@@ -180,7 +180,7 @@ function bibdk_vejviser_validate_name($name) {
 /**
  * Validate the zip form variable. Method might be unused if only one searchfield is used
  * @param type $name
- * @return boolean 
+ * @return boolean
  */
 function bibdk_vejviser_validate_zip($zip) {
   if (empty($zip)) {
@@ -192,7 +192,7 @@ function bibdk_vejviser_validate_zip($zip) {
 /**
  * Validate the city form variable. Method might be unused if only one searchfield is used
  * @param type $name
- * @return boolean 
+ * @return boolean
  */
 function bibdk_vejviser_validate_city($city) {
   if (empty($city)) {
