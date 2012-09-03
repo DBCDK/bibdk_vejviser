@@ -156,7 +156,6 @@ function bibdk_vejviser_execute_agency_search() {
     $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
     $result = bibdk_vejviser_handle_response($resp);
   } else {
-    drupal_set_message('TESTHEST');
     //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
   }
 
