@@ -43,7 +43,7 @@
             <a href="<?php print $branch->serviceDeclarationUrl ?>" target="_blank" />Servicedeklaration></a></p>
         <?php endif; ?>
         <?php if (isset($branch->openingHours) && $branch->openingHours) : ?>
-          <p>Åbningstider:<br/> 
+          <p>Åbningstider:<br/>
             <?php foreach ($branch->openingHours as $hours) : ?>
               <?php print $hours->{'$'}; ?>
               <br/>
@@ -51,9 +51,10 @@
           </p>
         <?php endif; ?>
       </div>
-
+ <div><?php print drupal_render($branch->button);?></div>
       <hr/>
     </div>
+
   <?php endforeach; ?>
 <?php endforeach; ?>
 <?php endif;?>
