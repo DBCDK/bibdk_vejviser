@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_form_FORM_ID_alter
+ * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings)
  * Creates a field for adding a URL for the Ting Agency Serach webservice
  */
 function bibdk_vejviser_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
@@ -18,6 +18,21 @@ function bibdk_vejviser_form_ting_admin_ting_settings_alter(&$form, &$form_state
     '#default_value' => variable_get('agency_search_url', ''),
   );
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
+ * Creates a field for adding a URL for the Ting Agency Search webservice
+ */
+function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form, &$form_state, $form_id) {
+  $form['ting']['agency_search_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenAgency URL'),
+    '#description' => t('URL to the Ting agency search webservice, e.g. http://openagency.addi.dk/1.6/'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('agency_search_url', ''),
+  );
+}
+
 
 /**
  * Implements hook_block_info();
@@ -141,11 +156,66 @@ function bibdk_vejviser_execute_agency_search() {
     $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
     $result = bibdk_vejviser_handle_response($resp);
   } else {
+    drupal_set_message('TESTHEST');
     //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
+  }
+
+  if( !empty($result) ) {
+    // add a button to each branch
+    foreach ($result['libraries'] as $agency) {
+      foreach ($agency->pickUpAgencies as $branch) {
+        $branch->button = drupal_get_form('bibdk_vejviser_select_form',$branch);
+      }
+    }
   }
 
   $markup = theme('bibdk_vejviser', array('result' => $result));
   return $markup;
+}
+
+function bibdk_vejviser_select_form($form,$form_state) {
+  $form['favourite_button'] = array(
+    '#type'=>'submit',
+    '#value'=>t('Tilføj til favoritbiblioteker'),
+    '#ajax' => array(
+      'callback' => 'bibdk_vejviser_ajax_add_favourite',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Ajax callback function
+ * add favourite to session
+ * set a message
+ **/
+function bibdk_vejviser_ajax_add_favourite($form, $form_state) {
+  $branch = $form_state['build_info']['args'][0];
+  bibdk_vejviser_add_favourite_to_session ($branch);
+  $bibname = $_SESSION['bibdk_favourites'][$branch->branchId]->branchName;
+
+  $text = t('@bibname has been added to your favourite libraries',array('@bibname'=>$bibname));
+
+  $commands = array();
+   // insert (replace)  a message in drupals messages area
+  $selector = '.messages';
+  drupal_set_message($text);
+  $commands[] = ajax_command_replace($selector, theme('status_messages'));
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}
+
+/**
+ * Add favourite library to sesssion
+ **/
+function bibdk_vejviser_add_favourite_to_session ($branch) {
+  if (!isset($_SESSION)) {
+    drupal_session_initialize();
+    $_SESSION['bibdk_favourites'] = array();
+  }
+
+  $_SESSION['bibdk_favourites'][$branch->branchId]=$branch;
 }
 
 /**
