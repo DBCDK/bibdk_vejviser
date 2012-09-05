@@ -75,12 +75,19 @@ function bibdk_vejviser_menu() {
 
 /**
  * Implementation of hook_theme().
+ * two templates:
+ * bibdk_vejviser holds multiple agencies
+ * bibdk_agency holds a single agency
  */
 function bibdk_vejviser_theme() {
   return array(
     'bibdk_vejviser' => array(
       'variables' => array(),
       'template' => 'template/bibdk_vejviser',
+    ),
+    'bibdk_agency' => array(
+      'variables' => array('agency'=>NULL),
+      'template'=>'template/bibdk_agency',
     ),
   );
 }
@@ -160,61 +167,20 @@ function bibdk_vejviser_execute_agency_search() {
   }
 
   if( !empty($result) ) {
-    // add a button to each branch
+    // add addtional html; button etc. to each branch
     foreach ($result['libraries'] as $agency) {
       foreach ($agency->pickUpAgencies as $branch) {
-        $branch->button = drupal_get_form('bibdk_vejviser_select_form',$branch);
+	// check if any modules has anything to add to branch
+	$addit = module_invoke_all('add_to_vejviser',$branch);
+        if( !empty($addit) ) {
+          $branch->addit = $addit;
+        }
       }
     }
   }
 
   $markup = theme('bibdk_vejviser', array('result' => $result));
   return $markup;
-}
-
-function bibdk_vejviser_select_form($form,$form_state) {
-  $form['favourite_button'] = array(
-    '#type'=>'submit',
-    '#value'=>t('Tilføj til favoritbiblioteker'),
-    '#ajax' => array(
-      'callback' => 'bibdk_vejviser_ajax_add_favourite',
-    ),
-  );
-
-  return $form;
-}
-
-/**
- * Ajax callback function
- * add favourite to session
- * set a message
- **/
-function bibdk_vejviser_ajax_add_favourite($form, $form_state) {
-  $branch = $form_state['build_info']['args'][0];
-  bibdk_vejviser_add_favourite_to_session ($branch);
-  $bibname = $_SESSION['bibdk_favourites'][$branch->branchId]->branchName;
-
-  $text = t('@bibname has been added to your favourite libraries',array('@bibname'=>$bibname));
-
-  $commands = array();
-   // insert (replace)  a message in drupals messages area
-  $selector = '.messages';
-  drupal_set_message($text);
-  $commands[] = ajax_command_replace($selector, theme('status_messages'));
-
-  return array('#type' => 'ajax', '#commands' => $commands);
-}
-
-/**
- * Add favourite library to sesssion
- **/
-function bibdk_vejviser_add_favourite_to_session ($branch) {
-  if (!isset($_SESSION)) {
-    drupal_session_initialize();
-    $_SESSION['bibdk_favourites'] = array();
-  }
-
-  $_SESSION['bibdk_favourites'][$branch->branchId]=$branch;
 }
 
 /**
