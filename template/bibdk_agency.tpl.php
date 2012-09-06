@@ -44,9 +44,11 @@ echo '<div class="messages_' .$branch->branchId. '"></div>';
 
    <div>
    <!-- additional html; buttons etc. -->
+<?php if (isset($branch->addit)) : ?>
  <?php foreach($branch->addit as $addit) : ?>
      <div><?php print $addit; ?></div>
  <?php endforeach; ?>
+<?php endif; ?>
 
       <hr/>
     </div>
