@@ -19,6 +19,7 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
    * Setting up the test 
    */
   public function setUp() {
+    $this->profile = 'bibdk';
     parent::setUp(array('bibdk_vejviser', 'ting'));
   }
 
@@ -39,42 +40,35 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
 
 }
 
-/**
- * Testing: Validation of inputfields
- */
-class BibdkVejviserTestCaseEmptyFormSubmit extends DrupalWebTestCase {
-
+class BibdkVejviserWebservice extends DrupalWebTestCase {
+  
   public static function getInfo() {
     return array(
-      'name' => 'Input fields',
-      'description' => t('Verify that input is validated'),
+      'name' => 'Webservice',
+      'description' => t('Verify webservice mockup'),
       'group' => 'Bibdk Vejviser',
     );
   }
-
+  
   public function setUp() {
-    parent::setUp(array('bibdk_vejviser'));
-    
-    $admin = $this->drupalCreateUser(array('administer blocks'));
-    $this->drupalLogin($admin);
-    
-    $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_bibdk_vejviser][region]' => 'content'), t('Save blocks'));
-    $this->drupalLogout();
+    $this->profile = 'bibdk';
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting'));
   }
-  
-  /**
-   * Ensuring that the block is visible 
-   */
-  public function testBlockPresence(){
-    $this->drupalGet('ding_frontpage');
-    $this->assertText('Find Library', t('Block is present at frontpage'));
-  }
-  
-  /**
-   * Testing that an error message will appear if no user input is given 
-   */
+
   public function testNoUserInput(){
-    $this->drupalPost('ding_frontpage', NULL, t('Search'));
+    $this->drupalPost('', NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
+  }
+
+  public function testAndSetAgencyUrl() {
+    $url = variable_get('agency_search_url');
+    $this->assertNull($url, 'No URL set for Open Agency yet');
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+   
+    $this->drupalPost('', array('openagency_city' => 'københavn'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Hovedbiblioteket, Krystalgade', t('Agency search reslu correcly shown'));
   }
 }

@@ -33,7 +33,6 @@ function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form
   );
 }
 
-
 /**
  * Implements hook_block_info();
  */
@@ -86,8 +85,8 @@ function bibdk_vejviser_theme() {
       'template' => 'template/bibdk_vejviser',
     ),
     'bibdk_agency' => array(
-      'variables' => array('agency'=>NULL),
-      'template'=>'template/bibdk_agency',
+      'variables' => array('agency' => NULL),
+      'template' => 'template/bibdk_agency',
     ),
   );
 }
@@ -162,17 +161,18 @@ function bibdk_vejviser_execute_agency_search() {
     $client = new ting_client_class();
     $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
     $result = bibdk_vejviser_handle_response($resp);
-  } else {
+  }
+  else {
     //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
   }
 
-  if( !empty($result) ) {
+  if (!empty($result)) {
     // add addtional html; button etc. to each branch
     foreach ($result['libraries'] as $agency) {
       foreach ($agency->pickUpAgencies as $branch) {
-	// check if any modules has anything to add to branch
-	$addit = module_invoke_all('add_to_vejviser',$branch);
-        if( !empty($addit) ) {
+        // check if any modules has anything to add to branch
+        $addit = module_invoke_all('add_to_vejviser', $branch);
+        if (!empty($addit)) {
           $branch->addit = $addit;
         }
       }
