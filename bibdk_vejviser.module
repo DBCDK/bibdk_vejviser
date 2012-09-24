@@ -34,6 +34,14 @@ function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form
 }
 
 /**
+ * Implements hook_how_r_u();
+ * @return type
+ */
+function bibdk_vejviser_how_r_u(){
+  return array('Open Agency' => variable_get('agency_search_url', ''));
+}
+
+/**
  * Implements hook_block_info();
  */
 function bibdk_vejviser_block_info() {
