@@ -104,7 +104,6 @@ function bibdk_vejviser_theme() {
  * @return array
  */
 function bibdk_vejviser_form($form) {
-
   $form['openagency_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -126,6 +125,8 @@ function bibdk_vejviser_form($form) {
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
   );
+  
+  $form['#attributes'] = array('class' => array('visuallyhidden'));
   return $form;
 }
 
