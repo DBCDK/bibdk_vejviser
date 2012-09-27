@@ -106,9 +106,11 @@ function bibdk_vejviser_theme() {
 function bibdk_vejviser_form($form) {
   $form['openagency_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Name'),
-    '#size' => 5,
+    '#size' => 10,
+    '#attributes' => array('placeholder' => t('Library name, zip or city')),
   );
+  
+  /*
   $form['openagency_zip'] = array(
     '#type' => 'textfield',
     '#title' => t('Zip'),
@@ -119,6 +121,8 @@ function bibdk_vejviser_form($form) {
     '#title' => t('City'),
     '#size' => 5,
   );
+   * 
+   */
 
   $form['openagency_submit'] = array(
     '#type' => 'submit',
@@ -126,7 +130,6 @@ function bibdk_vejviser_form($form) {
     '#executes_submit_callback' => TRUE,
   );
   
-  $form['#attributes'] = array('class' => array('visuallyhidden'));
   return $form;
 }
 
