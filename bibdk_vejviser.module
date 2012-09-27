@@ -55,7 +55,7 @@ function bibdk_vejviser_block_info() {
 }
 
 /**
- * Implements hook_block_configure();
+ * Implements hook_block_view();
  */
 function bibdk_vejviser_block_view($delta = '') {
   switch ($delta) {
