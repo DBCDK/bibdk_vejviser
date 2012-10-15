@@ -143,13 +143,11 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
  * @return array
  */
 function bibdk_vejviser_execute_agency_search() {
-  if (isset($_REQUEST['openagency_query'])) { #$_REQUEST['openagency_name']) || isset($_REQUEST['openagency_zip']) || isset($_REQUEST['openagency_city'])) {
+  if (isset($_REQUEST['openagency_query'])) {
     $query = check_plain($_REQUEST['openagency_query']);
   }
-
   $result = array();
-
-  if (isset($query)) {
+  if (!empty($query)) {
     module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
     $client = new ting_client_class();
     $resp = $client->do_agency_search(array('anyField' => $query));
@@ -157,6 +155,7 @@ function bibdk_vejviser_execute_agency_search() {
   }
   else {
     //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
   }
 
   if (!empty($result)) {

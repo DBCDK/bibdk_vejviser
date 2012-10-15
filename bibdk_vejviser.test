@@ -52,7 +52,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
   
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting', 'devel'));
   }
 
   public function testNoUserInput(){
@@ -68,7 +68,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
    
-    $this->drupalPost('', array('openagency_city' => 'københavn'), t('Search'), array(), array(), 'bibdk-vejviser-form');
-    $this->assertText('Hovedbiblioteket, Krystalgade', t('Agency search reslu correcly shown'));
+    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
   }
 }
