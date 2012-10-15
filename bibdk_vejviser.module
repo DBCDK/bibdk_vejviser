@@ -37,7 +37,7 @@ function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form
  * Implements hook_how_r_u();
  * @return type
  */
-function bibdk_vejviser_how_r_u(){
+function bibdk_vejviser_how_r_u() {
   return array('Open Agency' => variable_get('agency_search_url', ''));
 }
 
@@ -62,9 +62,9 @@ function bibdk_vejviser_block_view($delta = '') {
     case 'bibdk_vejviser':
       $block['title'] = t('Find Library');
       $block['content'] = drupal_get_form('bibdk_vejviser_form');
-      return $block;
       break;
   }
+  return $block;
 }
 
 /**
@@ -104,32 +104,18 @@ function bibdk_vejviser_theme() {
  * @return array
  */
 function bibdk_vejviser_form($form) {
-  $form['openagency_name'] = array(
+  $form['openagency_query'] = array(
     '#type' => 'textfield',
     '#size' => 10,
     '#attributes' => array('placeholder' => t('Library name, zip or city')),
   );
-  
-  /*
-  $form['openagency_zip'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Zip'),
-    '#size' => 5,
-  );
-  $form['openagency_city'] = array(
-    '#type' => 'textfield',
-    '#title' => t('City'),
-    '#size' => 5,
-  );
-   * 
-   */
 
   $form['openagency_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
   );
-  
+
   return $form;
 }
 
@@ -139,16 +125,13 @@ function bibdk_vejviser_form($form) {
  * @param type $form_state
  */
 function bibdk_vejviser_form_submit(&$form, &$form_state) {
-  $name = check_plain($form_state['values']['openagency_name']);
-  $zip = check_plain($form_state['values']['openagency_zip']);
-  $city = check_plain($form_state['values']['openagency_city']);
-
+  $query = check_plain($form_state['values']['openagency_query']);
   //If all input fields are empty notify the user
-  if (!bibdk_vejviser_validate_name($name) && !bibdk_vejviser_validate_zip($zip) && !bibdk_vejviser_validate_city($city)) {
+  if (!isset($query)) {
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
   }
   else {
-    $query = array('openagency_name' => $name, 'openagency_zip' => $zip, 'openagency_city' => $city);
+    $query = array('openagency_query' => $query);
     drupal_goto('vejviser', array('query' => $query));
   }
 }
@@ -160,18 +143,16 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
  * @return array
  */
 function bibdk_vejviser_execute_agency_search() {
-  if (isset($_REQUEST['openagency_name']) || isset($_REQUEST['openagency_zip']) || isset($_REQUEST['openagency_city'])) {
-    $name = check_plain($_REQUEST['openagency_name']);
-    $zip = check_plain($_REQUEST['openagency_zip']);
-    $city = check_plain($_REQUEST['openagency_city']);
+  if (isset($_REQUEST['openagency_query'])) { #$_REQUEST['openagency_name']) || isset($_REQUEST['openagency_zip']) || isset($_REQUEST['openagency_city'])) {
+    $query = check_plain($_REQUEST['openagency_query']);
   }
 
   $result = array();
 
-  if (isset($name) || isset($zip) || isset($city)) {
+  if (isset($query)) {
     module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
     $client = new ting_client_class();
-    $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
+    $resp = $client->do_agency_search(array('anyField' => $query));
     $result = bibdk_vejviser_handle_response($resp);
   }
   else {
@@ -180,13 +161,11 @@ function bibdk_vejviser_execute_agency_search() {
 
   if (!empty($result)) {
     // add addtional html; button etc. to each branch
-    foreach ($result['libraries'] as $agency) {
-      foreach ($agency->pickUpAgencies as $branch) {
-        // check if any modules has anything to add to branch
-        $addit = module_invoke_all('add_to_vejviser', $branch);
-        if (!empty($addit)) {
-          $branch->addit = $addit;
-        }
+    foreach ($result['libraries'] as $branch) {
+      // check if any modules has anything to add to branch
+      $addit = module_invoke_all('add_to_vejviser', $branch);
+      if (!empty($addit)) {
+        $branch->addit = $addit;
       }
     }
   }
@@ -204,46 +183,10 @@ function bibdk_vejviser_execute_agency_search() {
 function bibdk_vejviser_handle_response($response) {
 
   if (isset($response['error']) && $response['error']) {
-    //TODO handle error
+    drupal_set_message($response, 'error');
   }
   else if (isset($response['libraries'])) {
     $result = $response;
     return $result;
   }
-}
-
-/**
- * Validate the name form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_name($name) {
-  if (empty($name)) {
-    return FALSE;
-  }
-  return TRUE;
-}
-
-/**
- * Validate the zip form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_zip($zip) {
-  if (empty($zip)) {
-    return FALSE;
-  }
-  return TRUE;
-}
-
-/**
- * Validate the city form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_city($city) {
-  if (empty($city)) {
-    return FALSE;
-  }
-  return TRUE;
 }
