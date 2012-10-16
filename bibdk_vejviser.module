@@ -4,7 +4,7 @@
  * @file
  * Module file. Gives the the users ability to search for libraries through the OpenAgency webservice
  */
-  
+
 
 
 /**
@@ -68,7 +68,7 @@ function bibdk_vejviser_how_r_u() {
  * Implements hook_block_info();
  */
 function bibdk_vejviser_block_info() {
-  
+
   $blocks['header_action'] = array(
     'info' => t('Bibdk: Find library header action'),
     'description' => t('Displays a single input field for finding libraries'),
@@ -87,7 +87,7 @@ function bibdk_vejviser_block_view($delta = '') {
 
   switch ($delta) {
     case 'header_action':
-      $block['title'] = t('Find Library');
+      $block['title']   = '<none>';
       $block['content'] = _bibdk_vejviser_create_render_array($delta);
       break;
   }
@@ -102,20 +102,21 @@ function bibdk_vejviser_block_view($delta = '') {
  */
 function _bibdk_vejviser_create_render_array($delta) {
 
+  $render = array();
+
   switch ($delta) {
     case 'header_action':
-
-      $render_array = array(
+      $render = array(
         'link' => array(
-          '#type' => 'link',
-          '#title' => t("Find library"),
-          '#href' => "vejviser",
+          '#type'   => 'link',
+          '#title'  => t("Find library"),
+          '#href'   => "vejviser",
         ),
         'form' => array(drupal_get_form('bibdk_vejviser_form')),
       );
       break;
   }
-  return $render_array;
+  return $render;
 }
 
 
