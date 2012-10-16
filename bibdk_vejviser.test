@@ -55,6 +55,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting', 'devel'));
   }
 
+
   public function testNoUserInput(){
     $this->drupalPost('', NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
