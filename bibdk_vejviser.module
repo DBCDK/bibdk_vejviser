@@ -273,4 +273,3 @@ function bibdk_vejviser_validate_city($city) {
   }
   return TRUE;
 }
->>>>>>> Change how we render bibdk_vejviser block
