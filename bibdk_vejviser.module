@@ -5,8 +5,6 @@
  * Module file. Gives the the users ability to search for libraries through the OpenAgency webservice
  */
 
-
-
 /**
  * Implements hook_menu();
  * @return boolean
@@ -19,8 +17,6 @@ function bibdk_vejviser_menu() {
   );
   return $items;
 }
-
-
 
 /**
  * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings)
@@ -36,8 +32,6 @@ function bibdk_vejviser_form_ting_admin_ting_settings_alter(&$form, &$form_state
   );
 }
 
-
-
 /**
  * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
  * Creates a field for adding a URL for the Ting Agency Search webservice
@@ -52,8 +46,6 @@ function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form
   );
 }
 
-
-
 /**
  * Implements hook_how_r_u();
  * @return type
@@ -61,8 +53,6 @@ function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form
 function bibdk_vejviser_how_r_u() {
   return array('Open Agency' => variable_get('agency_search_url', ''));
 }
-
-
 
 /**
  * Implements hook_block_info();
@@ -76,8 +66,6 @@ function bibdk_vejviser_block_info() {
   return $blocks;
 }
 
-
-
 /**
  * Implements hook_block_view();
  */
@@ -87,14 +75,12 @@ function bibdk_vejviser_block_view($delta = '') {
 
   switch ($delta) {
     case 'header_action':
-      $block['title']   = '<none>';
+      $block['title'] = '<none>';
       $block['content'] = _bibdk_vejviser_create_render_array($delta);
       break;
   }
   return $block;
 }
-
-
 
 /**
  * Helper function: Creates render arrays for blocks
@@ -108,9 +94,9 @@ function _bibdk_vejviser_create_render_array($delta) {
     case 'header_action':
       $render = array(
         'link' => array(
-          '#type'   => 'link',
-          '#title'  => t("Find library"),
-          '#href'   => "vejviser",
+          '#type' => 'link',
+          '#title' => t("Find library"),
+          '#href' => "vejviser",
         ),
         'form' => array(drupal_get_form('bibdk_vejviser_form')),
       );
@@ -118,8 +104,6 @@ function _bibdk_vejviser_create_render_array($delta) {
   }
   return $render;
 }
-
-
 
 /**
  * Implementation of hook_theme().
@@ -139,8 +123,6 @@ function bibdk_vejviser_theme() {
     ),
   );
 }
-
-
 
 /**
  * Creates the form array
@@ -162,8 +144,6 @@ function bibdk_vejviser_form($form) {
   return $form;
 }
 
-
-
 /**
  * Called when form is submitted. Validating the input, json_encoding the input array and passes it to /vejviser
  * @param type $form
@@ -181,8 +161,6 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
   }
 }
 
-
-
 /**
  * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
  * There might be a better way for passing the search criterias
@@ -195,7 +173,6 @@ function bibdk_vejviser_execute_agency_search() {
   }
   $result = array();
   if (!empty($query)) {
-    module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
     $client = new ting_client_class();
     $resp = $client->do_agency_search(array('anyField' => $query));
     $result = bibdk_vejviser_handle_response($resp);
@@ -220,8 +197,6 @@ function bibdk_vejviser_execute_agency_search() {
   return $markup;
 }
 
-
-
 /**
  * Handling the response.
  * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere and deprecate this function
@@ -237,46 +212,4 @@ function bibdk_vejviser_handle_response($response) {
     $result = $response;
     return $result;
   }
-}
-
-
-
-/**
- * Validate the name form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_name($name) {
-  if (empty($name)) {
-    return FALSE;
-  }
-  return TRUE;
-}
-
-
-
-/**
- * Validate the zip form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_zip($zip) {
-  if (empty($zip)) {
-    return FALSE;
-  }
-  return TRUE;
-}
-
-
-
-/**
- * Validate the city form variable. Method might be unused if only one searchfield is used
- * @param type $name
- * @return boolean
- */
-function bibdk_vejviser_validate_city($city) {
-  if (empty($city)) {
-    return FALSE;
-  }
-  return TRUE;
 }
