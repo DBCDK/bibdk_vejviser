@@ -95,10 +95,15 @@ function _bibdk_vejviser_create_render_array($delta) {
       $render = array(
         'link' => array(
           '#type' => 'link',
-          '#title' => t("Find library"),
+          '#title' => t("Find library") . '<span class="icon icon-right icon-darkgrey-down">-</span>',
           '#href' => "vejviser",
+          '#options' => array(
+            'html' => TRUE,
+          ),
         ),
-        'form' => array(drupal_get_form('bibdk_vejviser_form')),
+        'form' => array(
+          drupal_get_form('bibdk_vejviser_form')
+        ),
       );
       break;
   }
@@ -129,6 +134,11 @@ function bibdk_vejviser_theme() {
  * @return array
  */
 function bibdk_vejviser_form($form) {
+
+  $form['#attributes'] = array(
+    'class' => array('visuallyhidden'),
+  );
+
   $form['openagency_query'] = array(
     '#type' => 'textfield',
     '#size' => 10,
@@ -139,8 +149,10 @@ function bibdk_vejviser_form($form) {
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
+    '#attributes' => array(
+      'class' => array('btn', 'btn-blue', 'btn-fixed-size'),
+    ),
   );
-
   return $form;
 }
 
