@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * @file
+ * Module file. Gives the the users ability to search for libraries through the OpenAgency webservice
+ */
+
+/**
+ * Implements hook_menu();
+ * @return boolean
+ */
+function bibdk_vejviser_menu() {
+  $items['vejviser'] = array(
+    'title' => 'Vejviser',
+    'page callback' => 'bibdk_vejviser_execute_agency_search',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter (ting_admin_ting_settings)
+ * Creates a field for adding a URL for the Ting Agency Serach webservice
+ */
+function bibdk_vejviser_form_ting_admin_ting_settings_alter(&$form, &$form_state, $form_id) {
+  $form['ting']['agency_search_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenAgency URL'),
+    '#description' => t('URL to the Ting agency search webservice, e.g. http://openagency.addi.dk/1.6/'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('agency_search_url', ''),
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter (ting_client_admin_webservices_settings)
+ * Creates a field for adding a URL for the Ting Agency Search webservice
+ */
+function bibdk_vejviser_form_ting_client_admin_webservices_settings_alter(&$form, &$form_state, $form_id) {
+  $form['ting']['agency_search_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('OpenAgency URL'),
+    '#description' => t('URL to the Ting agency search webservice, e.g. http://openagency.addi.dk/1.6/'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('agency_search_url', ''),
+  );
+}
+
+/**
+ * Implements hook_how_r_u();
+ * @return type
+ */
+function bibdk_vejviser_how_r_u() {
+  return array('Open Agency' => variable_get('agency_search_url', ''));
+}
+
+/**
+ * Implements hook_block_info();
+ */
+function bibdk_vejviser_block_info() {
+
+  $blocks['header_action'] = array(
+    'info' => t('Bibdk: Find library header action'),
+    'description' => t('Displays a single input field for finding libraries'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view();
+ */
+function bibdk_vejviser_block_view($delta = '') {
+
+  $block = array();
+
+  switch ($delta) {
+    case 'header_action':
+      $block['title'] = '<none>';
+      $block['content'] = _bibdk_vejviser_create_render_array($delta);
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Helper function: Creates render arrays for blocks
+ * @return array
+ */
+function _bibdk_vejviser_create_render_array($delta) {
+
+  $render = array();
+
+  switch ($delta) {
+    case 'header_action':
+      $render = array(
+        'link' => array(
+          '#type' => 'link',
+          '#title' => t("Find library") . '<span class="icon icon-right icon-darkgrey-down">-</span>',
+          '#href' => "vejviser",
+          '#options' => array(
+            'html' => TRUE,
+          ),
+        ),
+        'form' => array(
+          drupal_get_form('bibdk_vejviser_form')
+        ),
+      );
+      break;
+  }
+  return $render;
+}
+
+/**
+ * Implementation of hook_theme().
+ * two templates:
+ * bibdk_vejviser holds multiple agencies
+ * bibdk_agency holds a single agency
+ */
+function bibdk_vejviser_theme() {
+  return array(
+    'bibdk_vejviser' => array(
+      'variables' => array(),
+      'template' => 'template/bibdk_vejviser',
+    ),
+    'bibdk_agency' => array(
+      'variables' => array('agency' => NULL),
+      'template' => 'template/bibdk_agency',
+    ),
+  );
+}
+
+/**
+ * Creates the form array
+ * @return array
+ */
+function bibdk_vejviser_form($form) {
+
+  $form['#attributes'] = array(
+    'class' => array('visuallyhidden'),
+  );
+
+  $form['openagency_query'] = array(
+    '#type' => 'textfield',
+    '#size' => 10,
+    '#attributes' => array('placeholder' => t('Library name, zip or city')),
+  );
+
+  $form['openagency_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Search'),
+    '#executes_submit_callback' => TRUE,
+    '#attributes' => array(
+      'class' => array('btn', 'btn-blue', 'btn-fixed-size'),
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Called when form is submitted. Validating the input, json_encoding the input array and passes it to /vejviser
+ * @param type $form
+ * @param type $form_state
+ */
+function bibdk_vejviser_form_submit(&$form, &$form_state) {
+  $query = check_plain($form_state['values']['openagency_query']);
+  //If all input fields are empty notify the user
+  if (!isset($query)) {
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
+  }
+  else {
+    $query = array('openagency_query' => $query);
+    drupal_goto('vejviser', array('query' => $query));
+  }
+}
+
+/**
+ * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
+ * There might be a better way for passing the search criterias
+ * @param String $json
+ * @return array
+ */
+function bibdk_vejviser_execute_agency_search() {
+  if (isset($_REQUEST['openagency_query'])) {
+    $query = check_plain($_REQUEST['openagency_query']);
+  }
+  $result = array();
+  $sort[] = variable_get('agency_sort_librarytyoe', 'libraryType');
+  $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
+  if (!empty($query)) {
+    $client = new ting_client_class();
+    $resp = $client->do_agency_search(array('anyField' => $query, 'sort' => $sort));
+    $result = bibdk_vejviser_handle_response($resp);
+  }
+  else {
+    //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
+  }
+
+  if (!empty($result)) {
+    // add addtional html; button etc. to each branch
+    foreach ($result['libraries'] as $branch) {
+      // check if any modules has anything to add to branch
+      $addit = module_invoke_all('add_to_vejviser', $branch);
+      if (!empty($addit)) {
+        $branch->addit = $addit;
+      }
+    }
+  }
+
+  $markup = theme('bibdk_vejviser', array('result' => $result));
+  return $markup;
+}
+
+/**
+ * Handling the response.
+ * Received errors needs handling. The role of this function is quite limited. It might be worth handling errors elsewhere and deprecate this function
+ * @param array $response
+ * @return array
+ */
+function bibdk_vejviser_handle_response($response) {
+
+  if (isset($response['error']) && $response['error']) {
+    drupal_set_message($response, 'error');
+  }
+  else if (isset($response['libraries'])) {
+    $result = $response;
+    return $result;
+  }
+}

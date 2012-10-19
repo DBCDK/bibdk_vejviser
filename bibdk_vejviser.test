@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Testfile for the bibdk_vejviser module 
+ * Testing: Ting settings 
+ */
+class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Ting Settings page',
+      'description' => t('Test if OpenAgency URL field is added to Ting Settings page'),
+      'group' => 'Bibdk Vejviser',
+    );
+  }
+
+  /**
+   * Setting up the test 
+   */
+  public function setUp() {
+    $this->profile = 'bibdk';
+    parent::setUp(array('bibdk_vejviser', 'ting'));
+  }
+
+  /**
+   * Performing the test.
+   */
+  public function testTingSettings() {
+    //Creating a user and giving it the ability to administer ting settings 
+    $admin = $this->drupalCreateUser(array('administer ting settings'));
+    //Logging in the user
+    $this->drupalLogin($admin);
+
+    //Navigating to a specific path
+    $this->drupalGet('admin/config/ting/settings');
+    //Ensuring that some specific text is present on the page
+    $this->assertText('OpenAgency URL', t('OpenAgency URL field exsist in the Ting settings page'));
+  }
+
+}
+
+class BibdkVejviserWebservice extends DrupalWebTestCase {
+  
+  public static function getInfo() {
+    return array(
+      'name' => 'Webservice',
+      'description' => t('Verify webservice mockup'),
+      'group' => 'Bibdk Vejviser',
+    );
+  }
+  
+  public function setUp() {
+    $this->profile = 'bibdk';
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting', 'devel'));
+  }
+
+
+  public function testNoUserInput(){
+    $this->drupalPost('', NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
+  }
+
+  public function testAndSetAgencyUrl() {
+    $url = variable_get('agency_search_url');
+    $this->assertNull($url, 'No URL set for Open Agency yet');
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+   
+    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
+  }
+}
