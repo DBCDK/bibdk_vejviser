@@ -12,7 +12,7 @@
 function bibdk_vejviser_menu() {
   $items['vejviser'] = array(
     'title' => 'Vejviser',
-    'page callback' => 'bibdk_vejviser_execute_agency_search',
+    'page callback' => 'bibdk_vejviser_agency_search',
     'access callback' => TRUE,
   );
   return $items;
@@ -119,7 +119,7 @@ function _bibdk_vejviser_create_render_array($delta) {
 function bibdk_vejviser_theme() {
   return array(
     'bibdk_vejviser' => array(
-      'variables' => array(),
+      'variables' => array('libraries' => NULL),
       'template' => 'template/bibdk_vejviser',
     ),
     'bibdk_agency' => array(
@@ -173,32 +173,19 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
   }
 }
 
-/**
- * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
- * There might be a better way for passing the search criterias
- * @param String $json
- * @return array
- */
-function bibdk_vejviser_execute_agency_search() {
-  if (isset($_REQUEST['openagency_query'])) {
-    $query = check_plain($_REQUEST['openagency_query']);
-  }
-  $result = array();
-  $sort[] = variable_get('agency_sort_librarytyoe', 'libraryType');
-  $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
-  if (!empty($query)) {
-    $client = new ting_client_class();
-    $resp = $client->do_agency_search(array('anyField' => $query, 'sort' => $sort));
-    $result = bibdk_vejviser_handle_response($resp);
-  }
-  else {
-    //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
-    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
-  }
 
+function bibdk_vejviser_agency_search(){
+  if (!isset($_REQUEST['openagency_query'])) {
+    
+    drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
+    return;
+  }
+  
+  $query = check_plain($_REQUEST['openagency_query']);
+  $result = bibdk_vejviser_execute_agency_search($query);
   if (!empty($result)) {
     // add addtional html; button etc. to each branch
-    foreach ($result['libraries'] as $branch) {
+    foreach ($result as $branch) {
       // check if any modules has anything to add to branch
       $addit = module_invoke_all('add_to_vejviser', $branch);
       if (!empty($addit)) {
@@ -206,9 +193,27 @@ function bibdk_vejviser_execute_agency_search() {
       }
     }
   }
-
-  $markup = theme('bibdk_vejviser', array('result' => $result));
+  $count = count($result);
+  $markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
   return $markup;
+}
+
+/**
+ * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
+ * There might be a better way for passing the search criterias
+ * @param String $json
+ * @return array
+ */
+function bibdk_vejviser_execute_agency_search($query) {
+  $result = array();
+  $sort[] = variable_get('agency_sort_librarytype', 'libraryType');
+  $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
+  if (empty($query))
+    return; 
+  
+  $client = new ting_client_class();
+  $resp = $client->do_agency(array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
+  return bibdk_vejviser_handle_response($resp);
 }
 
 /**
@@ -218,12 +223,49 @@ function bibdk_vejviser_execute_agency_search() {
  * @return array
  */
 function bibdk_vejviser_handle_response($response) {
+   if (isset($response->findLibraryResponse->pickupAgency)) {
+     foreach ($response->findLibraryResponse->pickupAgency as $value) {
+      $agencies[] = new TingClientAgencyBranch($value);
+     }
+     return $agencies;
+   }
+    else if (isset($response->error)) {
+        $error = $this->getValue($response->error);
+        drupal_set_message($error, 'error');
+    }
+    else if (!isset($response->error) && !isset($response->pickupAgency)) {
+        $error = t('no_libraries_found_and_no_errors_reported');
+        drupal_set_message($error, 'error');
+    }
+  }
 
-  if (isset($response['error']) && $response['error']) {
-    drupal_set_message($response, 'error');
+
+/*public function processResponse(stdClass $response) {
+    if (isset($response->findLibraryResponse->pickupAgency)) {
+        $agencies = $this->parseResult($response->pickupAgency);
+    }
+    else if (isset($response->error) && $response->error) {
+        $agencies['error'] = $this->getValue($response->error);
+    }
+    else if (!isset($response->error) && !isset($response->pickupAgency)) {
+        return $agencies['error'] = t('no_libraries_found_and_no_errors_reported');
+    }
+    return $agencies;
   }
-  else if (isset($response['libraries'])) {
-    $result = $response;
-    return $result;
-  }
-}
+
+  /**
+   * Parsing the response
+   * @param type $response
+   * @return array of TingClientAgencyBranch objects
+   */
+  /*private function parseResult($response) {
+    $agencies = array();
+    $counter = 0;
+    foreach ($response as $value) {
+      $agency = new TingClientAgencyBranch($value);
+      $agencies['libraries'][] = $agency;
+      $counter++;
+    }
+    $agencies['count'] = $counter;
+    return $agencies;
+  }*/
