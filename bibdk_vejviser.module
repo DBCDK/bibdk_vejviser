@@ -100,6 +100,9 @@ function _bibdk_vejviser_create_render_array($delta) {
           '#options' => array(
             'html' => TRUE,
           ),
+          '#attributes' => array(
+            'class' => array('element-target'),
+          ),
         ),
         'form' => array(
           drupal_get_form('bibdk_vejviser_form')
@@ -176,11 +179,11 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
 
 function bibdk_vejviser_agency_search(){
   if (!isset($_REQUEST['openagency_query'])) {
-    
+
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
     return;
   }
-  
+
   $query = check_plain($_REQUEST['openagency_query']);
   $result = bibdk_vejviser_execute_agency_search($query);
   if (!empty($result)) {
@@ -209,8 +212,8 @@ function bibdk_vejviser_execute_agency_search($query) {
   $sort[] = variable_get('agency_sort_librarytype', 'libraryType');
   $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
   if (empty($query))
-    return; 
-  
+    return;
+
   $client = new ting_client_class();
   $resp = $client->do_agency(array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
   return bibdk_vejviser_handle_response($resp);
