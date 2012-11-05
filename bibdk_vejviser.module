@@ -202,7 +202,10 @@ function bibdk_vejviser_agency_search(){
 
   $query = check_plain($_REQUEST['openagency_query']);
   $result = bibdk_vejviser_execute_agency_search($query);
-  if (!empty($result)) {
+  global $user;
+  $logged_in = in_array('authenticated user', $user->roles) ? TRUE : FALSE;
+  
+  if (!empty($result) && $logged_in) {
     // add addtional html; button etc. to each branch
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
@@ -217,13 +220,13 @@ function bibdk_vejviser_agency_search(){
   $markup = '';
   foreach ($result as $branch) {
     $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
-    $markup .= theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $action));
-    $markup .= theme('bibdk_favourite_more_info', array('branch' => $branch,
+    $moreinfo = theme('bibdk_favourite_more_info', array('branch' => $branch,
       'openingHours' => theme('bibdk_favourite_opening_hours', array('branch' => $branch,)),
       'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
       'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
       'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
       ));
+    $markup .= theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo));
   }
   return $markup;
 }
