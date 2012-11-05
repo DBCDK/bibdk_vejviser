@@ -52,7 +52,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
   
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
   }
 
 
@@ -71,5 +71,49 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
    
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
+  }
+}
+
+class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Favourite button presence',
+      'description' => t('Verify that no favourite button will be present when user is not logged in'),
+      'group' => 'Bibdk Vejviser',
+    );
+  }
+  
+  public function setUp() {
+    $this->profile = 'bibdk';
+    parent::setup(array('bibdk_vejviser', 'bibdk_favourite', 'openagency_webservice_mockup', 'devel'));
+  }
+  
+  public function testNotLoggedInUser() {
+    $url = variable_get('agency_search_url');
+    $this->assertNull($url, 'No URL set for Open Agency yet');
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+   
+    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
+    $this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
+  }
+  
+  public function testLoggedInUser() {
+    $account = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($account);
+    
+    $url = variable_get('agency_search_url');
+    $this->assertNull($url, 'No URL set for Open Agency yet');
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+   
+    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
+    $this->assertRaw('bibdk-favourite-select-form', t('Favourite button is present'));
   }
 }
