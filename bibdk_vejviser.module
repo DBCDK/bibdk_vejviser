@@ -157,17 +157,14 @@ function bibdk_vejviser_theme() {
  */
 function bibdk_vejviser_form($form, &$form_state) {
 
-  $form['#attributes'] = array(
-    'class' => array('visuallyhidden'),
-  );
 
   $form['openagency_query'] = array(
     '#type' => 'textfield',
-    '#size' => 10,
     '#attributes' => array('placeholder' => t('Library name, zip or city')),
   );
 
-  $form['openagency_submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['openagency_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
@@ -204,7 +201,7 @@ function bibdk_vejviser_agency_search(){
   $result = bibdk_vejviser_execute_agency_search($query);
   global $user;
   $logged_in = in_array('authenticated user', $user->roles) ? TRUE : FALSE;
-  
+
   if (!empty($result) && $logged_in) {
     // add addtional html; button etc. to each branch
     foreach ($result as $branch) {
@@ -215,7 +212,7 @@ function bibdk_vejviser_agency_search(){
       }
     }
   }
-  
+
   #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
   $markup = '';
   foreach ($result as $branch) {
