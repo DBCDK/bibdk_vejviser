@@ -2,8 +2,8 @@
 
 /**
  * @file
- * Testfile for the bibdk_vejviser module 
- * Testing: Ting settings 
+ * Testfile for the bibdk_vejviser module
+ * Testing: Ting settings
  */
 class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
 
@@ -11,15 +11,14 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
     return array(
       'name' => 'Ting Settings page',
       'description' => t('Test if OpenAgency URL field is added to Ting Settings page'),
-      'group' => 'Bibdk Vejviser',
+      'group' => 'Bibliotek.dk Vejviser',
     );
   }
 
   /**
-   * Setting up the test 
+   * Setting up the test
    */
   public function setUp() {
-    $this->profile = 'bibdk';
     parent::setUp(array('bibdk_vejviser', 'ting'));
   }
 
@@ -27,7 +26,7 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
    * Performing the test.
    */
   public function testTingSettings() {
-    //Creating a user and giving it the ability to administer ting settings 
+    //Creating a user and giving it the ability to administer ting settings
     $admin = $this->drupalCreateUser(array('administer ting settings'));
     //Logging in the user
     $this->drupalLogin($admin);
@@ -41,20 +40,19 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
 }
 
 class BibdkVejviserWebservice extends DrupalWebTestCase {
-  
+
   public static function getInfo() {
     return array(
       'name' => 'Webservice',
       'description' => t('Verify webservice mockup'),
-      'group' => 'Bibdk Vejviser',
+      'group' => 'Bibliotek.dk Vejviser',
     );
   }
-  
+
   public function setUp() {
-    $this->profile = 'bibdk';
+    $this->profile = 'minimal';
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
   }
-
 
   public function testNoUserInput(){
     $this->drupalPost('', NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
@@ -68,7 +66,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-   
+
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
   }
@@ -79,39 +77,61 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     return array(
       'name' => 'Favourite button presence',
       'description' => t('Verify that no favourite button will be present when user is not logged in'),
-      'group' => 'Bibdk Vejviser',
+      'group' => 'Bibliotek.dk Vejviser',
     );
   }
-  
+
   public function setUp() {
-    $this->profile = 'bibdk';
-    parent::setup(array('bibdk_vejviser', 'bibdk_favourite', 'openagency_webservice_mockup', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
   }
-  
+
   public function testNotLoggedInUser() {
+    // log in user and set block
+    $account = $this->drupalCreateUser(array('access content','administer blocks', 'search content'));
+    $this->drupalLogin($account);
+
+    // Check if the "Bibdk: Find library" block is available
+    $this->drupalGet('admin/structure/block');
+    $this->assertRaw('Bibdk: Find library', 'The "Bibdk: Find library" block is available');
+
+    // Set up "Bibdk: Find library" block
+    $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
+    $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
+
+    $this->drupalLogout();
+
+
     $url = variable_get('agency_search_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-   
+
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
   }
-  
+
   public function testLoggedInUser() {
-    $account = $this->drupalCreateUser(array('access content'));
+    $account = $this->drupalCreateUser(array('access content','administer blocks', 'search content'));
     $this->drupalLogin($account);
-    
+
+    // Check if the "Bibdk: Find library" block is available
+    $this->drupalGet('admin/structure/block');
+    $this->assertRaw('Bibdk: Find library', 'The "Bibdk: Find library" block is available');
+
+    // Set up "Bibdk: Find library" block
+    $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
+    $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
+
     $url = variable_get('agency_search_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-   
+
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertRaw('bibdk-favourite-select-form', t('Favourite button is present'));

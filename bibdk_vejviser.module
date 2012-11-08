@@ -121,22 +121,6 @@ function _bibdk_vejviser_create_render_array($delta) {
  */
 function bibdk_vejviser_theme() {
   return array(
-    /*'bibdk_vejviser' => array(
-      'variables' => array('libraries' => NULL),
-      'template' => 'template/bibdk_vejviser',
-    ),
-    'bibdk_agency' => array(
-      'variables' => array('agency' => NULL),
-      'template' => 'template/bibdk_agency',
-    ),*/
-    'bibdk_favourite_library' => array(
-      'variables' => array('branchName' => NULL, 'actions' => NULL),
-      'template' => 'bibdk_favourite_library',
-    ),
-    'bibdk_favourite_more_info' => array(
-      'variables' => array('branch' => NULL,),
-      'template' => 'bibdk_favourite_more_info',
-    ),
     'bibdk_favourite_opening_hours' => array(
       'variables' => array('branch' => NULL,),
     ),
@@ -217,13 +201,15 @@ function bibdk_vejviser_agency_search(){
   $markup = '';
   foreach ($result as $branch) {
     $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
-    $moreinfo = theme('bibdk_favourite_more_info', array('branch' => $branch,
+    $moreinfo = theme('bibdk_favourite_more_info', array(
+      'branch' => $branch,
       'openingHours' => theme('bibdk_favourite_opening_hours', array('branch' => $branch,)),
       'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
       'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
       'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
-      ));
-    $markup .= theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo));
+      )
+    );
+    $markup .= theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
   }
   return $markup;
 }
