@@ -111,6 +111,8 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
+    $this->assertText('bibdk_favourite_more_info', t('"bibdk_favourite_more_info" correctly shown'));
+    $this->assertText('bibdk_favourite_less_info', t('"bibdk_favourite_less_info" correctly shown'));
   }
 
   public function testLoggedInUser() {
