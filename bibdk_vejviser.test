@@ -52,6 +52,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
   public function setUp() {
     $this->profile = 'minimal';
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_client'));
   }
 
   public function testNoUserInput(){
@@ -178,8 +179,8 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
     $this->assertText('ikke udfyldt', t('"postalAddress" correctly shown'));
     $this->assertText('9560', t('"postalCode" correctly shown'));
     $this->assertText('Hadsund', t('"city" correctly shown'));
-    // $this->assertText('http://www.branchWebsiteUrl.dk/', t('"branchWebsiteUrl" correctly shown'));
-    // $this->assertText('http://branchWebsiteUrl.dk/serviceDeclarationUrl/', t('"serviceDeclarationUrl" correctly shown'));
+    $this->assertText('http://www.branchWebsiteUrl.dk/', t('"branchWebsiteUrl" correctly shown'));
+    $this->assertText('http://branchWebsiteUrl.dk/serviceDeclarationUrl/', t('"serviceDeclarationUrl" correctly shown'));
     // $this->assertText('http://branchWebsiteUrl.dk/userStatusUrl/', t('"userStatusUrl" correctly shown'));
     $this->assertText('openingHours eng', t('"openingHours" (in english) correctly shown'));
     $this->assertNoText('openingHours dan', t('"openingHours" (in danish) correctly not shown'));
