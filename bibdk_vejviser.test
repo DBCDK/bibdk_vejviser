@@ -52,6 +52,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
   public function setUp() {
     $this->profile = 'minimal';
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_client'));
   }
 
   public function testNoUserInput(){
