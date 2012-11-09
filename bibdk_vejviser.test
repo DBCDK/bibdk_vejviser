@@ -109,10 +109,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
 
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
-    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
-    $this->assertText('bibdk_favourite_more_info', t('"bibdk_favourite_more_info" correctly shown'));
-    $this->assertText('bibdk_favourite_less_info', t('"bibdk_favourite_less_info" correctly shown'));
   }
 
   public function testLoggedInUser() {
@@ -135,7 +132,57 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
 
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
-    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertRaw('bibdk-favourite-select-form', t('Favourite button is present'));
   }
+}
+
+
+class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Search result content',
+      'description' => t('Test content of library data'),
+      'group' => 'Bibliotek.dk Vejviser',
+    );
+  }
+
+  public function setUp() {
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
+  }
+
+  public function testLibraryData() {
+    global $base_url;
+
+    // log in user and set block
+    $account = $this->drupalCreateUser(array('access content','administer blocks', 'search content'));
+    $this->drupalLogin($account);
+
+    // Check if the "Bibdk: Find library" block is available
+    $this->drupalGet('admin/structure/block');
+    $this->assertRaw('Bibdk: Find library', 'The "Bibdk: Find library" block is available');
+
+    // Set up "Bibdk: Find library" block
+    $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
+    $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
+
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+
+    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Als Bibliotek', t('"branchName" correctly shown'));
+    $this->assertText('bibdk_favourite_more_info', t('"bibdk_favourite_more_info" correctly shown'));
+    $this->assertText('bibdk_favourite_less_info', t('"bibdk_favourite_less_info" correctly shown'));
+    $this->assertText('9711 4115', t('"branchPhone" correctly shown'));
+    $this->assertText('hadsundbibliotek@mariagerfjord.dk', t('"branchEmail" correctly shown'));
+    $this->assertText('ikke udfyldt', t('"postalAddress" correctly shown'));
+    $this->assertText('9560', t('"postalCode" correctly shown'));
+    $this->assertText('Hadsund', t('"city" correctly shown'));
+    // $this->assertText('http://www.branchWebsiteUrl.dk/', t('"branchWebsiteUrl" correctly shown'));
+    // $this->assertText('http://branchWebsiteUrl.dk/serviceDeclarationUrl/', t('"serviceDeclarationUrl" correctly shown'));
+    // $this->assertText('http://branchWebsiteUrl.dk/userStatusUrl/', t('"userStatusUrl" correctly shown'));
+    $this->assertText('openingHours eng', t('"openingHours" (in english) correctly shown'));
+    $this->assertNoText('openingHours dan', t('"openingHours" (in danish) correctly not shown'));
+  }
+
 }
