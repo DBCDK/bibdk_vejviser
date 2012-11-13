@@ -119,7 +119,7 @@ function _bibdk_vejviser_create_render_array($delta) {
  * bibdk_vejviser holds multiple agencies
  * bibdk_agency holds a single agency
  */
-function bibdk_vejviser_theme() {
+/*function bibdk_vejviser_theme() {
   return array(
     'bibdk_favourite_opening_hours' => array(
       'variables' => array('branch' => NULL,),
@@ -133,7 +133,7 @@ function bibdk_vejviser_theme() {
     'bibdk_favourite_contact' => array(
       'variables' => array('branch' => NULL,),
   ));
-}
+}*/
 
 /**
  * Creates the form array
@@ -201,15 +201,15 @@ function bibdk_vejviser_agency_search(){
   $markup = '';
   foreach ($result as $branch) {
     $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
-    $moreinfo = theme('bibdk_favourite_more_info', array(
+    $moreinfo = theme('ting_agency_more_info', array(
       'branch' => $branch,
-      'openingHours' => theme('bibdk_favourite_opening_hours', array('branch' => $branch,)),
-      'tools' => theme('bibdk_favourite_tools', array('branch' => $branch)),
-      'address' => theme('bibdk_favourite_address', array('branch' => $branch)),
-      'contact' => theme('bibdk_favourite_contact', array('branch' => $branch)),
+      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+      'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+      'address' => theme('ting_agency_address', array('branch' => $branch)),
+      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
       )
     );
-    $markup .= theme('bibdk_favourite_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+    $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
   }
   return $markup;
 }
