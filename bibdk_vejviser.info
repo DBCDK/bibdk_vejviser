@@ -4,6 +4,6 @@ package = "Bibliotek.dk"
 core = 7.x
 version = 0.1
 
-dependencies[] = bibdk_favourite
+dependencies[] = ting_agency
 
 files[] = bibdk_vejviser.test
