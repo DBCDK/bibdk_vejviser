@@ -12,7 +12,7 @@
 function bibdk_vejviser_menu() {
   $items['vejviser'] = array(
     'title' => 'Vejviser',
-    'page callback' => 'bibdk_vejviser_execute_agency_search',
+    'page callback' => 'bibdk_vejviser_agency_search',
     'access callback' => TRUE,
   );
   return $items;
@@ -95,10 +95,13 @@ function _bibdk_vejviser_create_render_array($delta) {
       $render = array(
         'link' => array(
           '#type' => 'link',
-          '#title' => t("Find library") . '<span class="icon icon-right icon-darkgrey-down">-</span>',
+          '#title' => t("Find library") . '<span class="icon icon-right icon-darkgrey-down">&nbsp;</span>',
           '#href' => "vejviser",
           '#options' => array(
             'html' => TRUE,
+          ),
+          '#attributes' => array(
+            'class' => array('element-target'),
           ),
         ),
         'form' => array(
@@ -116,42 +119,39 @@ function _bibdk_vejviser_create_render_array($delta) {
  * bibdk_vejviser holds multiple agencies
  * bibdk_agency holds a single agency
  */
-function bibdk_vejviser_theme() {
+/*function bibdk_vejviser_theme() {
   return array(
-    'bibdk_vejviser' => array(
-      'variables' => array(),
-      'template' => 'template/bibdk_vejviser',
+    'bibdk_favourite_opening_hours' => array(
+      'variables' => array('branch' => NULL,),
     ),
-    'bibdk_agency' => array(
-      'variables' => array('agency' => NULL),
-      'template' => 'template/bibdk_agency',
+    'bibdk_favourite_tools' => array(
+      'variables' => array('branch' => NULL,),
     ),
-  );
-}
+    'bibdk_favourite_address' => array(
+      'variables' => array('branch' => NULL,),
+    ),
+    'bibdk_favourite_contact' => array(
+      'variables' => array('branch' => NULL,),
+  ));
+}*/
 
 /**
  * Creates the form array
  * @return array
  */
-function bibdk_vejviser_form($form) {
+function bibdk_vejviser_form($form, &$form_state) {
 
-  $form['#attributes'] = array(
-    'class' => array('visuallyhidden'),
-  );
 
   $form['openagency_query'] = array(
     '#type' => 'textfield',
-    '#size' => 10,
     '#attributes' => array('placeholder' => t('Library name, zip or city')),
   );
 
-  $form['openagency_submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['openagency_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
-    '#attributes' => array(
-      'class' => array('btn', 'btn-blue', 'btn-fixed-size'),
-    ),
   );
   return $form;
 }
@@ -173,32 +173,22 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
   }
 }
 
-/**
- * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
- * There might be a better way for passing the search criterias
- * @param String $json
- * @return array
- */
-function bibdk_vejviser_execute_agency_search() {
-  if (isset($_REQUEST['openagency_query'])) {
-    $query = check_plain($_REQUEST['openagency_query']);
-  }
-  $result = array();
-  $sort[] = variable_get('agency_sort_librarytyoe', 'libraryType');
-  $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
-  if (!empty($query)) {
-    $client = new ting_client_class();
-    $resp = $client->do_agency_search(array('anyField' => $query, 'sort' => $sort));
-    $result = bibdk_vejviser_handle_response($resp);
-  }
-  else {
-    //TODO some user information should be displayed to tell the user that he accessed /vejviser without having performed OpenAgency search
+
+function bibdk_vejviser_agency_search(){
+  if (!isset($_REQUEST['openagency_query'])) {
+
     drupal_set_message(t('You haven\'t entered any search criteria.'), 'error');
+    return;
   }
 
-  if (!empty($result)) {
+  $query = check_plain($_REQUEST['openagency_query']);
+  $result = bibdk_vejviser_execute_agency_search($query);
+  global $user;
+  $logged_in = in_array('authenticated user', $user->roles) ? TRUE : FALSE;
+
+  if (!empty($result) && $logged_in) {
     // add addtional html; button etc. to each branch
-    foreach ($result['libraries'] as $branch) {
+    foreach ($result as $branch) {
       // check if any modules has anything to add to branch
       $addit = module_invoke_all('add_to_vejviser', $branch);
       if (!empty($addit)) {
@@ -207,8 +197,39 @@ function bibdk_vejviser_execute_agency_search() {
     }
   }
 
-  $markup = theme('bibdk_vejviser', array('result' => $result));
+  #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
+  $markup = '';
+  foreach ($result as $branch) {
+    $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
+    $moreinfo = theme('ting_agency_more_info', array(
+      'branch' => $branch,
+      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+      'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+      'address' => theme('ting_agency_address', array('branch' => $branch)),
+      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
+    );
+    $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+  }
   return $markup;
+}
+
+/**
+ * Callback function for the /vejviser menu item. Called when user hits http://domain.dk/vejviser. Takes the above encoded json string as input
+ * There might be a better way for passing the search criterias
+ * @param String $json
+ * @return array
+ */
+function bibdk_vejviser_execute_agency_search($query) {
+  $result = array();
+  $sort[] = variable_get('agency_sort_librarytype', 'libraryType');
+  $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
+  if (empty($query))
+    return;
+
+  $client = new ting_client_class();
+  $resp = $client->do_agency(array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
+  return bibdk_vejviser_handle_response($resp);
 }
 
 /**
@@ -218,12 +239,18 @@ function bibdk_vejviser_execute_agency_search() {
  * @return array
  */
 function bibdk_vejviser_handle_response($response) {
-
-  if (isset($response['error']) && $response['error']) {
-    drupal_set_message($response, 'error');
+   if (isset($response->findLibraryResponse->pickupAgency)) {
+     foreach ($response->findLibraryResponse->pickupAgency as $value) {
+      $agencies[] = new TingClientAgencyBranch($value);
+     }
+     return $agencies;
+   }
+    else if (isset($response->error)) {
+        $error = $this->getValue($response->error);
+        drupal_set_message($error, 'error');
+    }
+    else if (!isset($response->error) && !isset($response->pickupAgency)) {
+        $error = t('no_libraries_found_and_no_errors_reported');
+        drupal_set_message($error, 'error');
+    }
   }
-  else if (isset($response['libraries'])) {
-    $result = $response;
-    return $result;
-  }
-}

@@ -2,6 +2,8 @@ name = Bibdk Vejviser
 description = "Gives the ability to search for libraries"
 package = "Bibliotek.dk"
 core = 7.x
-version = 0.1
+version = 7.x-0.2
+
+dependencies[] = ting_agency
 
 files[] = bibdk_vejviser.test
