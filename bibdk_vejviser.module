@@ -176,7 +176,6 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
 
 function bibdk_vejviser_agency_search(){
   if (!isset($_REQUEST['openagency_query'])) {
-
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
     return;
   }
@@ -190,7 +189,7 @@ function bibdk_vejviser_agency_search(){
     // add addtional html; button etc. to each branch
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
-      $addit = module_invoke_all('add_to_vejviser', $branch);
+      $addit = module_invoke_all('add_to_vejviser', $branch->branchId);
       if (!empty($addit)) {
         $branch->addit = $addit;
       }
