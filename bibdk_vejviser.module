@@ -208,7 +208,7 @@ function bibdk_vejviser_agency_search(){
       'contact' => theme('ting_agency_contact', array('branch' => $branch)),
       )
     );
-    $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+    $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName'=>$branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
   }
   return $markup;
 }
