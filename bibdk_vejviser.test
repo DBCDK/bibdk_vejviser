@@ -19,7 +19,7 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
    * Setting up the test
    */
   public function setUp() {
-    parent::setUp(array('bibdk_vejviser', 'ting'));
+    parent::setUp(array('bibdk_vejviser', 'ting', 'ting_agency'));
   }
 
   /**
@@ -60,15 +60,14 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
     $this->assertText('You haven\'t entered any search criteria.', t('Error message appears correctly'));
   }
 
-  public function testAndSetAgencyUrl() {
+  public function testAndSetAgencyUrl() { 
     $url = variable_get('agency_search_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-
-    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->drupalPost('vejviser', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
   }
 }
@@ -83,7 +82,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','ting_agency'));
   }
 
   public function testNotLoggedInUser() {
@@ -93,7 +92,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
 
     // Check if the "Bibdk: Find library" block is available
     $this->drupalGet('admin/structure/block');
-    $this->assertRaw('Bibdk: Find library', 'The "Bibdk: Find library" block is available');
+    $this->assertRaw('Bibdk: Find library header action', 'The "Bibdk: Find library" block is available');
 
     // Set up "Bibdk: Find library" block
     $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
@@ -101,14 +100,12 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
 
     $this->drupalLogout();
 
-
     $url = variable_get('agency_search_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
   }
@@ -131,6 +128,9 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+    
+    //enable favourite module
+    module_enable(array('bibdk_favourite'));
 
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertRaw('bibdk-favourite-select-form', t('Favourite button is present'));
@@ -148,12 +148,11 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','ting_agency' ));
   }
 
   public function testLibraryData() {
     global $base_url;
-
     
     // log in user and set block
     $account = $this->drupalCreateUser(array('access content','administer blocks', 'search content'));
