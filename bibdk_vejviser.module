@@ -198,17 +198,19 @@ function bibdk_vejviser_agency_search(){
 
   #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
   $markup = '';
-  foreach ($result as $branch) {
-    $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
-    $moreinfo = theme('ting_agency_more_info', array(
-      'branch' => $branch,
-      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-      'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-      'address' => theme('ting_agency_address', array('branch' => $branch)),
-      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-      )
-    );
-    $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+  if ( $result ) {
+    foreach ($result as $branch) {
+      $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
+      $moreinfo = theme('ting_agency_more_info', array(
+        'branch' => $branch,
+        'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+        'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+        'address' => theme('ting_agency_address', array('branch' => $branch)),
+        'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+        )
+      );
+      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName'=>$branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+    }
   }
   return $markup;
 }
