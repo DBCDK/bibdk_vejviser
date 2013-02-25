@@ -183,7 +183,7 @@ function bibdk_vejviser_agency_search(){
   $query = check_plain($_REQUEST['openagency_query']);
   $result = bibdk_vejviser_execute_agency_search($query);
   global $user;
-  $logged_in = in_array('authenticated user', $user->roles) ? TRUE : FALSE;
+  $logged_in = ding_user_is_provider_user($user);
 
   if (!empty($result) && $logged_in) {
     // add addtional html; button etc. to each branch

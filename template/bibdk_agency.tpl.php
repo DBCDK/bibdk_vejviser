@@ -7,27 +7,27 @@
       <p><?php print $branch->postalAddress; ?><br/>
         <?php print $branch->postalCode; ?> <?php print $branch->city; ?><br/>
         <?php $findVej = $branch->postalAddress . ',' . $branch->postalCode; ?>
-        <a href="http://findvej.dk/<?php print urlencode($findVej); ?>" target="_blank" />Se på kort (findvej.dk)</a></p>
+        <a href="http://findvej.dk/<?php print urlencode($findVej); ?>" target="_blank" /><?php t('See on map (findvej.dk)', array(), array('context' => 'bibdk_vejviser')); ?></a></p>
     <?php endif; ?>
 
     <?php if (isset($branch->branchPhone) && $branch->branchPhone) : ?>
-      <span>Telefon: <?php print $branch->branchPhone; ?></span>
+      <span><?php t('Telephone:', array(), array('context' => 'bibdk_vejviser')); ?><?php print $branch->branchPhone; ?></span>
     <?php endif; ?>
 
     <?php if (isset($branch->branchEmail) && $branch->branchPhone) : ?>
-      <p>E-mail: <a href="mailto:<?php print $branch->branchEmail ?>"/><?php print $branch->branchEmail ?></a></p>
+      <p><?php t('E-mail:', array(), array('context' => 'bibdk_vejviser')); ?><a href="mailto:<?php print $branch->branchEmail ?>"/><?php print $branch->branchEmail ?></a></p>
     <?php endif; ?>
   </div>
 
   <div class="right-infobox">
     <?php if (isset($branch->branchWebsiteUrl) && $branch->branchWebsiteUrl) : ?>
-      <p><a href="<?php print $branch->branchWebsiteUrl ?>" target="_blank" />Bibliotekets hjemmeside></a><br/>
+      <p><a href="<?php print $branch->branchWebsiteUrl ?>" target="_blank" /><?php t('Library homepage', array(), array('context' => 'bibdk_vejviser')); ?></a><br/>
       <?php endif; ?>
       <?php if (isset($branch->serviceDeclarationUrl) && $branch->serviceDeclarationUrl) : ?>
-        <a href="<?php print $branch->serviceDeclarationUrl ?>" target="_blank" />Servicedeklaration></a></p>
+        <a href="<?php print $branch->serviceDeclarationUrl ?>" target="_blank" /><?php t('Service declaration', array(), array('context' => 'bibdk_vejviser')); ?>></a></p>
     <?php endif; ?>
     <?php if (isset($branch->openingHours) && $branch->openingHours) : ?>
-      <p>Åbningstider:<br/>
+      <p><?php t('Opening hours:', array(), array('context' => 'bibdk_vejviser')); ?><br/>
         <?php foreach ($branch->openingHours as $hours) : ?>
           <?php print $hours->{'$'}; ?>
           <br/>

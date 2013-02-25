@@ -6,8 +6,8 @@
  */
 ?>
 <?php if (isset($libraries)) : ?>
-  <h4>Biblioteksvejviser - resultat - vælg bibliotek</h4>
-  <p>i alt: <?php print $count ?></p>
+  <h4><?php t('Library directory - result - choose library ', array(), array('context' => 'bibdk_vejviser')); ?></h4>
+  <p><?php t('Total:', array(), array('context' => 'bibdk_vejviser')); ?> <?php print $count ?></p>
   <hr/>
   <?php foreach ($libraries as $branch) : ?>
 
