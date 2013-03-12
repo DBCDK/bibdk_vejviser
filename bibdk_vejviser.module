@@ -117,9 +117,12 @@ function _bibdk_vejviser_create_render_array($delta) {
  * Creates the form array
  * @return array
  */
-function bibdk_vejviser_form($form, &$form_state) {
-
-
+function bibdk_vejviser_form($form, &$form_state) { 
+ $value = isset($form_state['input']['openagency_query']) ? $form_state['input']['openagency_query'] : NULL;
+ if( !empty($value) ) {
+   drupal_set_message(t('search results for %value',array('%value'=>$value)), 'status');
+ }
+ 
   $form['openagency_query'] = array(
     '#type' => 'textfield',
     '#attributes' => array('placeholder' => t('Library name, zip or city')),
@@ -142,7 +145,7 @@ function bibdk_vejviser_form($form, &$form_state) {
 function bibdk_vejviser_form_submit(&$form, &$form_state) {
   $query = check_plain($form_state['values']['openagency_query']);
   //If all input fields are empty notify the user
-  if (!isset($query)) {
+  if ( isset($query) && empty($query)) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
   }
   else {
@@ -154,26 +157,28 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
 
 
 function _bibdk_vejviser_vejviser_raw(){
-  if (empty($_REQUEST['openagency_query'])) {
+//  if (empty($_REQUEST['openagency_query'])) {
     $ret = drupal_get_form('bibdk_vejviser_form');
     // change id of input textfield to make javascript work
     $ret['openagency_query']['#id'] = $ret['openagency_query']['#id'] . '-23';
     // set classes to display correct
     $ret['#attributes']['class'] = array('search-form-horizontal', 'vejviser-raw');
     return drupal_render($ret);
-  }
-  return FALSE;
+ // }
+ // return FALSE;
 }
 
 function bibdk_vejviser_agency_search() {  
-  $ret = _bibdk_vejviser_vejviser_raw();
-  if( $ret !== FALSE ){
-    return $ret;
-  }
+  
+  $raw = _bibdk_vejviser_vejviser_raw();
 
-  if (!isset($_REQUEST['openagency_query'])) {
+  if( !isset($_REQUEST['openagency_query']) ){
+    return $raw;
+  }
+  
+  if (isset($_REQUEST['openagency_query']) && empty($_REQUEST['openagency_query']) ) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
-    return;
+    return $raw;
   }
 
   $query = check_plain($_REQUEST['openagency_query']);
@@ -193,7 +198,8 @@ function bibdk_vejviser_agency_search() {
   }
 
   #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
-  $markup = '';
+ // $markup = '';
+  $markup = $raw;
   if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
