@@ -114,33 +114,14 @@ function _bibdk_vejviser_create_render_array($delta) {
 }
 
 /**
- * Implementation of hook_theme().
- * two templates:
- * bibdk_vejviser holds multiple agencies
- * bibdk_agency holds a single agency
- */
-/*function bibdk_vejviser_theme() {
-  return array(
-    'bibdk_favourite_opening_hours' => array(
-      'variables' => array('branch' => NULL,),
-    ),
-    'bibdk_favourite_tools' => array(
-      'variables' => array('branch' => NULL,),
-    ),
-    'bibdk_favourite_address' => array(
-      'variables' => array('branch' => NULL,),
-    ),
-    'bibdk_favourite_contact' => array(
-      'variables' => array('branch' => NULL,),
-  ));
-}*/
-
-/**
  * Creates the form array
  * @return array
  */
 function bibdk_vejviser_form($form, &$form_state) {
-
+  $value = isset($form_state['input']['openagency_query']) ? $form_state['input']['openagency_query'] : NULL;
+  if (!empty($value)) {
+    drupal_set_message(t('search results for %value', array('%value' => $value)), 'status');
+  }
 
   $form['openagency_query'] = array(
     '#type' => 'textfield',
@@ -156,6 +137,13 @@ function bibdk_vejviser_form($form, &$form_state) {
   return $form;
 }
 
+function bibdk_vejviser_vejviser_page_content_alter(&$data) {
+  if (drupal_static('bibdk_vejviser_empty_result')) {
+    $data['#prefix'] = '<div class="element-wrapper-fake">';
+    $data['#suffix'] ='</div>'; 
+  }
+}
+
 /**
  * Called when form is submitted. Validating the input, json_encoding the input array and passes it to /vejviser
  * @param type $form
@@ -164,7 +152,7 @@ function bibdk_vejviser_form($form, &$form_state) {
 function bibdk_vejviser_form_submit(&$form, &$form_state) {
   $query = check_plain($form_state['values']['openagency_query']);
   //If all input fields are empty notify the user
-  if (!isset($query)) {
+  if (isset($query) && empty($query)) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
   }
   else {
@@ -173,11 +161,30 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
   }
 }
 
+function _bibdk_vejviser_vejviser_raw() {
+//  if (empty($_REQUEST['openagency_query'])) {
+  $ret = drupal_get_form('bibdk_vejviser_form');
+  // change id of input textfield to make javascript work
+  $ret['openagency_query']['#id'] = $ret['openagency_query']['#id'] . '-23';
+  // set classes to display correct
+  $ret['#attributes']['class'] = array('search-form-horizontal', 'vejviser-raw');
+  return drupal_render($ret);
+  // }
+  // return FALSE;
+}
 
-function bibdk_vejviser_agency_search(){
+function bibdk_vejviser_agency_search() {
+
+  $raw = _bibdk_vejviser_vejviser_raw();
+
   if (!isset($_REQUEST['openagency_query'])) {
+    drupal_static('bibdk_vejviser_empty_result', 1);
+    return $raw;
+  }
+
+  if (isset($_REQUEST['openagency_query']) && empty($_REQUEST['openagency_query'])) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
-    return;
+    return $raw;
   }
 
   $query = check_plain($_REQUEST['openagency_query']);
@@ -197,8 +204,9 @@ function bibdk_vejviser_agency_search(){
   }
 
   #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
-  $markup = '';
-  if ( $result ) {
+  // $markup = '';
+  $markup = $raw;
+  if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
       $moreinfo = theme('ting_agency_more_info', array(
@@ -207,9 +215,9 @@ function bibdk_vejviser_agency_search(){
         'tools' => theme('ting_agency_tools', array('branch' => $branch)),
         'address' => theme('ting_agency_address', array('branch' => $branch)),
         'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-        )
+          )
       );
-      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName'=>$branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
     }
   }
   return $markup;
@@ -240,18 +248,20 @@ function bibdk_vejviser_execute_agency_search($query) {
  * @return array
  */
 function bibdk_vejviser_handle_response($response) {
-   if (isset($response->findLibraryResponse->pickupAgency)) {
-     foreach ($response->findLibraryResponse->pickupAgency as $value) {
+  if (isset($response->findLibraryResponse->pickupAgency)) {
+    foreach ($response->findLibraryResponse->pickupAgency as $value) {
       $agencies[] = new TingClientAgencyBranch($value);
-     }
-     return $agencies;
-   }
-    else if (isset($response->error)) {
-        $error = $this->getValue($response->error);
-        drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
     }
-    else if (!isset($response->error) && !isset($response->pickupAgency)) {
-        $error = t('no_libraries_found_and_no_errors_reported');
-        drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
-    }
+    return $agencies;
   }
+  else if (isset($response->error)) {
+    $error = $this->getValue($response->error);
+    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+  }
+  else if (!isset($response->error) && !isset($response->pickupAgency)) {
+    $error = t('no_libraries_found_and_no_errors_reported');
+    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+    // quickfix - goto vejviser entrypoint
+    drupal_goto('vejviser');
+  }
+}
