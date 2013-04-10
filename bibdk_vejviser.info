@@ -2,7 +2,7 @@ name = Bibdk Vejviser
 description = Gives the ability to search for libraries
 package = Bibliotek.dk
 core = 7.x
-version = 7.x-0.9
+version = 7.x-0.10
 
 dependencies[] = ting_agency
 
