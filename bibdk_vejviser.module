@@ -120,7 +120,7 @@ function _bibdk_vejviser_create_render_array($delta) {
 function bibdk_vejviser_form($form, &$form_state) {
   $value = isset($form_state['input']['openagency_query']) ? $form_state['input']['openagency_query'] : NULL;
   if (!empty($value)) {
-    drupal_set_message(t('search results for %value', array('%value' => $value)), 'status');
+    drupal_set_message(t('search results for %value', array('%value' => str_replace('*', '?', $value))), 'status');
   }
 
   $form['openagency_query'] = array(
@@ -134,13 +134,16 @@ function bibdk_vejviser_form($form, &$form_state) {
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
   );
+
+  drupal_add_js(drupal_get_path('module', 'bibdk_vejviser') . '/js/bibdk_vejviser.js');
+
   return $form;
 }
 
 function bibdk_vejviser_vejviser_page_content_alter(&$data) {
   if (drupal_static('bibdk_vejviser_empty_result')) {
     $data['#prefix'] = '<div class="element-wrapper-fake">';
-    $data['#suffix'] ='</div>'; 
+    $data['#suffix'] ='</div>';
   }
 }
 
@@ -156,10 +159,27 @@ function bibdk_vejviser_form_submit(&$form, &$form_state) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
   }
   else {
-    $query = array('openagency_query' => $query);
+    $query = array('openagency_query' => str_replace('*', '?', $query));
     drupal_goto('vejviser', array('query' => $query));
   }
 }
+
+
+/**
+ * Implements hook_theme().
+ */
+function bibdk_vejviser_theme() {
+  $path = drupal_get_path('module', 'bibdk_vejviser') . '/template';
+  $bibdk_vejviser_theme_array = array(
+    'bibdk_vejviser-header' => array(
+      'render element'  => 'form',
+      'path'            => $path,
+      'template'        => 'bibdk_vejviser_header',
+    ),
+  );
+  return $bibdk_vejviser_theme_array;
+}
+
 
 function _bibdk_vejviser_vejviser_raw() {
 //  if (empty($_REQUEST['openagency_query'])) {
@@ -203,9 +223,8 @@ function bibdk_vejviser_agency_search() {
     }
   }
 
-  #$markup = theme('bibdk_vejviser', array('libraries' => $result, 'count' => $count));
-  // $markup = '';
-  $markup = $raw;
+  $markup = theme('bibdk_vejviser-header', array('search_form' => $raw, 'count' => sizeof($result)));
+
   if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
@@ -220,6 +239,7 @@ function bibdk_vejviser_agency_search() {
       $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
     }
   }
+
   return $markup;
 }
 
