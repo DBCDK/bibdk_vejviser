@@ -15,6 +15,7 @@ function bibdk_vejviser_menu() {
     'page callback' => 'bibdk_vejviser_agency_search',
     'access callback' => TRUE,
   );
+
   return $items;
 }
 
@@ -176,19 +177,40 @@ function _bibdk_vejviser_vejviser_raw() {
 function bibdk_vejviser_agency_search() {
 
   $raw = _bibdk_vejviser_vejviser_raw();
-
-  if (!isset($_REQUEST['openagency_query'])) {
+  
+  debug("Before Request");
+  debug($_REQUEST);
+  debug("After Request");
+  
+  if (isset($_REQUEST['agencyId']) && empty($_REQUEST['agencyId'])  ) {
+    drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
+    debug("Request empty");
+    return $raw;
+  }
+  
+  debug("Testhest1");
+  
+  if (isset($_REQUEST['agencyId'])) {
+    // Agency pickup search
+    $result = bibdk_vejviser_execute_pickup_agency_search($_REQUEST['agencyId']);
+    debug($result);
+  } 
+  elseif (!isset($_REQUEST['openagency_query'])) {
     drupal_static('bibdk_vejviser_empty_result', 1);
     return $raw;
   }
-
-  if (isset($_REQUEST['openagency_query']) && empty($_REQUEST['openagency_query'])) {
+  
+  if (isset($_REQUEST['openagency_query']) && empty($_REQUEST['openagency_query'])  ) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
     return $raw;
   }
 
-  $query = check_plain($_REQUEST['openagency_query']);
-  $result = bibdk_vejviser_execute_agency_search($query);
+  if (isset($_REQUEST['openagency_query'])) {
+    // Agency  query search
+    $query = check_plain($_REQUEST['openagency_query']);
+    $result = bibdk_vejviser_execute_agency_search($query);
+  }
+  debug($result);
   global $user;
   $logged_in = ding_user_is_provider_user($user);
 
@@ -217,10 +239,19 @@ function bibdk_vejviser_agency_search() {
         'contact' => theme('ting_agency_contact', array('branch' => $branch)),
           )
       );
-      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => $branch->agencyName, 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => bibdk_vejviser_get_agency_link($branch), 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
     }
   }
   return $markup;
+}
+
+/**
+ * create agency_link and return. ex: http://dringo.dbc.dk/ana.ding/da/vejviser/?agencyId=830070
+ * @param String $branch
+ * @return string
+ */
+function bibdk_vejviser_get_agency_link($branch) {
+  return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))));
 }
 
 /**
@@ -233,12 +264,25 @@ function bibdk_vejviser_execute_agency_search($query) {
   $result = array();
   $sort[] = variable_get('agency_sort_librarytype', 'libraryType');
   $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
-  if (empty($query))
-    return;
+  if (empty($query)) return;
 
   $client = new ting_client_class();
   $resp = $client->do_agency(array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
   return bibdk_vejviser_handle_response($resp);
+}
+
+/**
+ * Callback function for the /vejviser menu item: Find pickup_agencyId's for agencyId be showed.
+ * @param String $agencyId
+ * @return array
+ */
+function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
+  //Find pickup_agencyIds for agencyId
+  if (empty($agencyId)) return;
+  $client = new ting_client_class();
+  // Call pickupAgencyListRequest service parm: agencyId
+  $resp = $client->do_agency(array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
+  return bibdk_vejviser_handle_agency_response($resp);
 }
 
 /**
@@ -265,3 +309,32 @@ function bibdk_vejviser_handle_response($response) {
     drupal_goto('vejviser');
   }
 }
+
+/**
+ * Handling the response. pickupAgencyListResponse will be passed for all pickupAgencyListResponse->library[0]->pickupAgency for display 
+ * @param array $response
+ * @return array
+ */
+function bibdk_vejviser_handle_agency_response($response) {
+  
+  if (isset($response->pickupAgencyListResponse->library[0]->pickupAgency)) {
+    // set search statustext 
+    drupal_set_message(t('search results for %value', array('%value' => TingClientRequest::getValue($response->pickupAgencyListResponse->library[0]->agencyName))), 'status');
+    
+    // loop on picupAgencies
+    foreach ($response->pickupAgencyListResponse->library[0]->pickupAgency as $value) {
+      $agencies[] = new TingClientAgencyBranch($value);
+    }
+    return $agencies;
+  }
+  else if (isset($response->error)) {
+    $error = $this->getValue($response->error);
+    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+  }
+  else if (!isset($response->error) && !isset($response->pickupAgency)) {
+    $error = t('no_libraries_found_and_no_errors_reported');
+    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+    drupal_goto('vejviser');
+  }
+}
+
