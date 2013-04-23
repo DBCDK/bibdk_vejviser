@@ -177,23 +177,15 @@ function _bibdk_vejviser_vejviser_raw() {
 function bibdk_vejviser_agency_search() {
 
   $raw = _bibdk_vejviser_vejviser_raw();
-  
-  debug("Before Request");
-  debug($_REQUEST);
-  debug("After Request");
-  
   if (isset($_REQUEST['agencyId']) && empty($_REQUEST['agencyId'])  ) {
     drupal_set_message(t('You haven\'t entered any search criteria.', array(), array('context' => 'bibdk_vejviser')), 'error');
-    debug("Request empty");
     return $raw;
   }
-  
-  debug("Testhest1");
   
   if (isset($_REQUEST['agencyId'])) {
     // Agency pickup search
     $result = bibdk_vejviser_execute_pickup_agency_search($_REQUEST['agencyId']);
-    debug($result);
+  
   } 
   elseif (!isset($_REQUEST['openagency_query'])) {
     drupal_static('bibdk_vejviser_empty_result', 1);
@@ -210,7 +202,7 @@ function bibdk_vejviser_agency_search() {
     $query = check_plain($_REQUEST['openagency_query']);
     $result = bibdk_vejviser_execute_agency_search($query);
   }
-  debug($result);
+  
   global $user;
   $logged_in = ding_user_is_provider_user($user);
 
