@@ -171,7 +171,7 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency','ding_user'));
     // Setup agencyservice
     variable_set('agency_search_url', 'http://openagency.addi.dk/2.2/');
 
