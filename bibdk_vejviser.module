@@ -228,6 +228,7 @@ function bibdk_vejviser_agency_search() {
         'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
         'tools' => theme('ting_agency_tools', array('branch' => $branch)),
         'address' => theme('ting_agency_address', array('branch' => $branch)),
+        'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
         'contact' => theme('ting_agency_contact', array('branch' => $branch)),
           )
       );
@@ -243,7 +244,12 @@ function bibdk_vejviser_agency_search() {
  * @return string
  */
 function bibdk_vejviser_get_agency_link($branch) {
-  return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))));
+  if (empty($branch->agencyId)) {
+    return $branch->agencyName;
+  }
+  else {
+    return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))));
+  }  
 }
 
 /**
@@ -315,7 +321,7 @@ function bibdk_vejviser_handle_agency_response($response) {
     
     // loop on picupAgencies
     foreach ($response->pickupAgencyListResponse->library[0]->pickupAgency as $value) {
-      $agencies[] = new TingClientAgencyBranch($value);
+      $agencies[] = new TingClientAgencyBranch($value, TingClientRequest::getValue($response->pickupAgencyListResponse->library[0]->agencyName));
     }
     return $agencies;
   }
