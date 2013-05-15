@@ -257,7 +257,7 @@ function bibdk_vejviser_execute_agency_search($query) {
     return;
 
   $client = new ting_client_class();
-  $resp = $client->do_agency(array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
+  $resp = $client->do_request('agency', array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
   return bibdk_vejviser_handle_response($resp);
 }
 
