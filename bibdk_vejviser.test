@@ -155,6 +155,61 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
   }
 }
 
+//
+// PickupAgencyList-service test
+// 
+//
+class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Webservice pickupAgencyList',
+      'description' => t('Verify pickupAgencyList webservice mockup'),
+      'group' => 'Bibliotek.dk Vejviser',
+    );
+  }
+
+  public function setUp() {
+    //$this->profile = 'minimal';
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency','ding_user'));
+    // Setup agencyservice
+    variable_set('agency_search_url', 'http://openagency.addi.dk/2.2/');
+
+  }
+
+ public function testpickupAgencyListData(){
+    
+    //Check if the "Bibdk: Find pickupAgencyList" block is available
+    //Link: http://dringo.dbc.dk/ana.ding/da/vejviser/?agencyId=710100
+    //http://openagency.addi.dk/2.2/
+    
+    // Vejviser query - realtime call to service
+    $this->drupalGet('vejviser', array('query' => array('agencyId'=>'710100')));
+    
+    // Check for returntext - Valby Bibliotek
+    $this->assertRaw('Valby Bibliotek', 'Ok - Valby Bibliotek is a part of search result');
+    
+    // Check for returntext - Københavns Biblioteker
+    $this->assertRaw('Københavns Biblioteker', 'Ok - Københavns Biblioteker is a part of search result');
+
+    // Check for returntext -  33736062
+    $this->assertRaw('33736062', 'Ok - 33736062 is a part of search result');
+
+    // Check for returntext -  ting_agency_librarydk_contact
+    $this->assertRaw('ting_agency_librarydk_contact', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    
+    // Check for returntext -  librarydkSupportPhone
+    $this->assertRaw('librarydkSupportPhone', 'Ok - ting_agency_librarydk_contact is a part of search result');
+
+    // Check for returntext -  librarydkSupportEmail
+    $this->assertRaw('librarydkSupportEmail', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    
+   
+ }
+  
+}
+
+// end pickhup
 
 class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
   public static function getInfo() {
@@ -204,4 +259,8 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
     //$this->assertNoText('openingHours dan', t('"openingHours" (in danish) correctly not shown'));
   }
 
+  
+ 
+  
+  
 }
