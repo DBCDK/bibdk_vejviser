@@ -121,6 +121,7 @@ function _bibdk_vejviser_create_render_array($delta) {
 function bibdk_vejviser_form($form, &$form_state) {
   $value = isset($form_state['input']['openagency_query']) ? $form_state['input']['openagency_query'] : NULL;
   if (!empty($value)) {
+    
     drupal_set_message(t('search results for %value', array('%value' => str_replace('*', '?', $value))), 'status');
   }
 
@@ -222,7 +223,7 @@ function bibdk_vejviser_agency_search() {
     $query = check_plain($_REQUEST['openagency_query']);
     $result = bibdk_vejviser_execute_agency_search($query);
   }
-  
+    
   global $user;
   $logged_in = ding_user_is_provider_user($user);
 
@@ -230,15 +231,18 @@ function bibdk_vejviser_agency_search() {
     // add addtional html; button etc. to each branch
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
-      $addit = module_invoke_all('add_to_vejviser', $branch->branchId);
-      if (!empty($addit)) {
-        $branch->addit = $addit;
+      // but show only button if pickup is allowed for this branch
+      if ($branch->pickupAllowed == '1') {
+        $addit = module_invoke_all('add_to_vejviser', $branch->branchId);
+        if (!empty($addit)) {
+          $branch->addit = $addit;
+        }
       }
     }
   }
 
   $markup = theme('bibdk_vejviser-header', array('search_form' => $raw, 'count' => sizeof($result)));
-
+  
   if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
@@ -247,14 +251,17 @@ function bibdk_vejviser_agency_search() {
         'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
         'tools' => theme('ting_agency_tools', array('branch' => $branch)),
         'address' => theme('ting_agency_address', array('branch' => $branch)),
+        'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
         'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
         'contact' => theme('ting_agency_contact', array('branch' => $branch)),
           )
+          
       );
+      
       $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => bibdk_vejviser_get_agency_link($branch), 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
     }
   }
-
+  
   return $markup;
 }
 
@@ -334,11 +341,11 @@ function bibdk_vejviser_handle_response($response) {
  * @return array
  */
 function bibdk_vejviser_handle_agency_response($response) {
-  
+
   if (isset($response->pickupAgencyListResponse->library[0]->pickupAgency)) {
     // set search statustext 
     drupal_set_message(t('search results for %value', array('%value' => TingClientRequest::getValue($response->pickupAgencyListResponse->library[0]->agencyName))), 'status');
-    
+   
     // loop on picupAgencies
     foreach ($response->pickupAgencyListResponse->library[0]->pickupAgency as $value) {
       $agencies[] = new TingClientAgencyBranch($value, TingClientRequest::getValue($response->pickupAgencyListResponse->library[0]->agencyName));
