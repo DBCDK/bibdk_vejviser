@@ -243,6 +243,7 @@ function bibdk_vejviser_agency_search() {
 
   $markup = theme('bibdk_vejviser-header', array('search_form' => $raw, 'count' => sizeof($result)));
   
+  global $language;
   if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
@@ -258,7 +259,7 @@ function bibdk_vejviser_agency_search() {
           
       );
       
-      $markup .= theme('ting_agency_library', array('branchName' => $branch->branchName, 'agencyName' => bibdk_vejviser_get_agency_link($branch), 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      $markup .= theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'agencyName' => bibdk_vejviser_get_agency_link($branch), 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
     }
   }
   
