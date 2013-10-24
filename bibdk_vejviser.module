@@ -103,6 +103,7 @@ function _bibdk_vejviser_create_render_array($delta) {
           ),
           '#attributes' => array(
             'class' => array('element-target'),
+            'id' => array('selid-agency-find-agency'),
           ),
         ),
         'form' => array(
