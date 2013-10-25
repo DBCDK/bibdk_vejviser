@@ -339,7 +339,7 @@ function bibdk_vejviser_handle_response($response) {
     $error = t('no_libraries_found_and_no_errors_reported');
     drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
     // quickfix - goto vejviser entrypoint
-    drupal_goto('vejviser');
+    //drupal_goto('vejviser');
   }
 }
 
