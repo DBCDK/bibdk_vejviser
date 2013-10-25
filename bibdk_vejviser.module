@@ -258,10 +258,17 @@ function bibdk_vejviser_agency_search() {
           
       );
       $markup .= '</br>';
-      $markup .= theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'agencyName' => bibdk_vejviser_get_agency_link($branch), 'actions' => $action, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      $markup .= theme('ting_agency_library', 
+                       array('branchName' => $branch->getBranchName($language->language), 
+                       'agencyName' => bibdk_vejviser_get_agency_link($branch),
+                       'actions' => $action, 
+                       'moreinfo' => $moreinfo, 
+                       'branchid' => $branch->branchId,
+                        ));
+     
     }
   }
-  
+
   return $markup;
 }
 
@@ -275,7 +282,7 @@ function bibdk_vejviser_get_agency_link($branch) {
     return $branch->agencyName;
   }
   else {
-    return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))));
+    return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))) . "    " . t('ting_show_all_libraries'));
   }  
 }
 
