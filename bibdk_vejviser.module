@@ -251,25 +251,46 @@ function bibdk_vejviser_agency_search() {
         'branch' => $branch,
         'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
         'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+        'temporarilyclosedreason' => theme('temporarilyclosedreason', array('branch' => $branch)),
         'address' => theme('ting_agency_address', array('branch' => $branch)),
         'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
         'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
         'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-          )
+        )
           
       );
+      
+      // Handle TemporarilyClosedReason
+      $tmpReason = $branch->getTemporarilyClosedReason();
+      if($tmpReason != 'ting_agency_no_temporarilyClosedReason') {
+        // Hide all drupalmessages
+        $messages = drupal_get_messages();
+        // Set  message for temporarilyClosedReason
+        drupal_set_message($tmpReason, 'warning');
+        $tmpReason = theme('status_messages');
+        // Restore old messages
+        foreach ($messages as $key=>$message) {
+          drupal_set_message($message[0],$key);
+        }
+      } 
+      else { 
+        $tmpReason = '';
+      }
+      
+      
       $markup .= '</br>';
       $markup .= theme('ting_agency_library', 
                        array('branchName' => $branch->getBranchName($language->language), 
                        'agencyName' => bibdk_vejviser_get_agency_link($branch),
+                       'temporarilyClosedReason' => $tmpReason,                         
                        'actions' => $action, 
                        'moreinfo' => $moreinfo, 
                        'branchid' => $branch->branchId,
-                        ));
-     
+                       ));
+    
     }
   }
-
+ 
   return $markup;
 }
 
