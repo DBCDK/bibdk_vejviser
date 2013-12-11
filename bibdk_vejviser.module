@@ -251,7 +251,6 @@ function bibdk_vejviser_agency_search() {
         'branch' => $branch,
         'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
         'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-        'temporarilyclosedreason' => theme('temporarilyclosedreason', array('branch' => $branch)),
         'address' => theme('ting_agency_address', array('branch' => $branch)),
         'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
         'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
