@@ -260,7 +260,7 @@ function bibdk_vejviser_agency_search() {
       );
       
       // Handle TemporarilyClosedReason
-      $tmpReason = $branch->getTemporarilyClosedReason();
+      $tmpReason = $branch->getTemporarilyClosedReason($language->language);
       if($tmpReason != 'ting_agency_no_temporarilyClosedReason') {
         // Hide all drupalmessages
         $messages = drupal_get_messages();
