@@ -126,6 +126,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
@@ -148,6 +149,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
 
@@ -178,8 +180,8 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
     //$this->profile = 'minimal';
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency','ding_user'));
     // Setup agencyservice
-    variable_set('agency_search_url', 'http://openagency.addi.dk/2.2/');
-
+    variable_set('agency_search_url', 'http://openagency.addi.dk/2.8/');
+    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
   }
 
  public function testpickupAgencyListData(){
@@ -190,9 +192,6 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
 
     // Vejviser query - realtime call to service
     $this->drupalGet('vejviser', array('query' => array('agencyId'=>'710100')));
-
-    // Check for returntext - Valby Bibliotek
-    $this->assertRaw('Valby Bibliotek', 'Ok - Valby Bibliotek is a part of search result');
 
     // Check for returntext - Københavns Biblioteker
     $this->assertRaw('Københavns Biblioteker', 'Ok - Københavns Biblioteker is a part of search result');
@@ -231,6 +230,8 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','ting_agency','bibdk_provider' ));
+    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
+    variable_set('agency_search_url',  $this->getAbsoluteUrl('/openagency_webservice/'));
   }
 
   public function testLibraryData() {
@@ -248,8 +249,11 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
     $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
     $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
 
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+   // variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
+
+    debug($newUrl);
+
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
 
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
