@@ -43,12 +43,13 @@ function bibdk_vejviser_autocomplete_agency_name_match($string, $agency_names) {
   if (empty($string)){
     return array();
   }
-  $data = array();
+
   foreach ($agency_names as $key => $name) {
-    if (preg_match("/\b$string/i", $name, $match)) {
-      $data[$key] = preg_replace("/" . $match[0] . "/i", '<b>' . $match[0] . '</b>', $name);
+    if (preg_match("/$string/iu", $name, $match) || preg_match("/$string/iu", $key, $match)) {
+      $data[$key] = preg_replace("/" . $match[0] . "/i", '<b>' . $match[0] . '</b>', $key);
     }
   }
+
   return $data;
 }
 
