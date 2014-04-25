@@ -6,4 +6,5 @@ version = 7.x-0.19
 
 dependencies[] = ting_agency
 
-files[] = bibdk_vejviser.test
+files[] = test/bibdk_vejviser.test
+files[] = test/bibdk_vejviser.autocomplete.test
