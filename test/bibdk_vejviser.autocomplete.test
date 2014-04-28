@@ -28,9 +28,9 @@ class BibdkVejviserAutocompleteTestCase extends DrupalWebTestCase {
 
   private function _testAutocompleteCallback() {
     $result = $this->drupalGetAJAX('vejviser/autocomplete/ring');
-    $this->assertTrue(count($result) == 5, 'array has 5 elements');
-    foreach($result as $element) {
-        $this->assertTrue(preg_match('/ring/i', $element), '"ring" is part of result');
+    $this->assertTrue(count($result) == 23, 'array has 5 elements');
+    foreach($result as $key => $element) {
+        $this->assertTrue(preg_match('/ring/i', $element) || preg_match('/ring/i', $key), '"ring" is part of result');
     }
     $result = $this->drupalGetAJAX('vejviser/autocomplete/no_elements');
     $this->assertTrue(count($result) == 0, 'array has no elements');
@@ -38,7 +38,7 @@ class BibdkVejviserAutocompleteTestCase extends DrupalWebTestCase {
     // Test variable not set
     variable_set('bibdk_vejviser_agency_autocomplete_names', false);
     $result = $this->drupalGetAJAX('vejviser/autocomplete/ring');
-    $this->assertTrue(count($result) == 5, 'array has 5 elements');
+    $this->assertTrue(count($result) == 23, 'array has 5 elements');
     $agencies = variable_get('bibdk_vejviser_agency_autocomplete_names');
     $this->assertTrue(is_array($agencies) && count($agencies) == 1137);
 
@@ -92,16 +92,17 @@ class BibdkVejviserAutocompleteUnitTestCase extends DrupalWebTestCase {
       'abcd' => '<b>ab</b>cd',
       'Abcd' => '<b>Ab</b>cd',
       'Abdd' => '<b>Ab</b>dd',
+      'ddab' => 'dd<b>ab</b>',
     );
     $result = bibdk_vejviser_autocomplete_agency_name_match($string, $names);
-    $this->assertEqual($result, $expected_result, 'empty string returns empty array');
+    $this->assertEqual($result, $expected_result, 'ab returns 4 results');
 
-    // test only result from beginning of word
-    $string = 'cd';
+    // test no matches
+    $string = 'cx';
     $expected_result = array(
     );
     $result = bibdk_vejviser_autocomplete_agency_name_match($string, $names);
-    $this->assertEqual($result, $expected_result, 'empty string returns empty array');
+    $this->assertEqual($result, $expected_result, 'no match returns empty array');
   }
 
   public function test_bibdk_vejviser_autocomplete_agency_list() {
