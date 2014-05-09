@@ -14,7 +14,7 @@ function bibdk_vejviser_get_autocomplete_data($string) {
   $data = bibdk_vejviser_autocomplete_agency_name_match($string, $names);
   // Return list as json
   drupal_json_output($data);
-  exit;
+  drupal_exit();
 }
 
 /** Get at list of all agency names. If list does not exists in cache. Retrieve a
