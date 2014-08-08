@@ -91,7 +91,7 @@ function _bibdk_vejviser_create_render_array($delta) {
       $render = array(
         'link' => array(
           '#type' => 'link',
-          '#title' => t("Find library") . '<span class="icon icon-right icon-darkgrey-down">&nbsp;</span>',
+          '#title' => t("Find library"),
           '#href' => "vejviser",
           '#options' => array(
             'html' => TRUE,
