@@ -333,7 +333,7 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
   $client = new ting_client_class();
   // Call pickupAgencyListRequest service parm: agencyId
 //  $resp = $client->do_agency(array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
-  $resp = $client->do_request('agency', array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'))
+  $resp = $client->do_request('agency', array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
   return bibdk_vejviser_handle_agency_response($resp);
 }
 
