@@ -123,15 +123,29 @@ function bibdk_vejviser_form($form, &$form_state) {
 
   $form['openagency_query'] = array(
     '#type' => 'textfield',
-    '#attributes' => array('placeholder' => t('Library name, zip or city')),
+    '#attributes' => array(
+      'placeholder' => t('Library name, zip or city'),
+      'class' => array('search-input-field'),
+    ),
     '#autocomplete_path' => 'vejviser/autocomplete',
   );
 
-  $form['actions'] = array('#type' => 'actions');
+  $form['actions'] = array(
+    '#type' => 'actions',
+    '#attributes' => array(
+    'placeholder' => t('Library name, zip or city'),
+    'class' => array('search-actions'),
+  ),
+
+  );
   $form['actions']['openagency_submit'] = array(
     '#type' => 'submit',
     '#value' => t('Search'),
     '#executes_submit_callback' => TRUE,
+    '#attributes' => array(
+      'class' => array('search-submit-field'),
+    ),
+
   );
 
 
