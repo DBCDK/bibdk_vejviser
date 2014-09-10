@@ -252,20 +252,26 @@ function bibdk_vejviser_agency_search() {
       }
     }
   }
-
   $markup = theme('bibdk_vejviser-header', array('search_form' => $raw, 'count' => sizeof($result),'ting_info_holder' => 'ting_info_holder'));
+  return $markup . '<br/>' . bibdk_vejviser_agency_search_generate_result_list($result);
+}
+
+function bibdk_vejviser_agency_search_generate_result_list($result) {
+
+  $markup = '';
+
   global $language;
   if ($result) {
     foreach ($result as $branch) {
       $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
       $moreinfo = theme('ting_agency_more_info', array(
-        'branch' => $branch,
-        'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-        'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-        'address' => theme('ting_agency_address', array('branch' => $branch)),
-        'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
-        'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
-        'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+          'branch' => $branch,
+          'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+          'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+          'address' => theme('ting_agency_address', array('branch' => $branch)),
+          'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
+          'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
+          'contact' => theme('ting_agency_contact', array('branch' => $branch)),
         )
 
       );
@@ -288,20 +294,20 @@ function bibdk_vejviser_agency_search() {
       }
 
 
-      $markup .= '</br>';
       $markup .= theme('ting_agency_library',
-                       array('branchName' => $branch->getBranchName($language->language),
-                       'agencyName' => bibdk_vejviser_get_agency_link($branch),
-                       'temporarilyClosedReason' => $tmpReason,
-                       'actions' => $action,
-                       'moreinfo' => $moreinfo,
-                       'branchid' => $branch->branchId,
-                       ));
+        array('branchName' => $branch->getBranchName($language->language),
+          'agencyName' => bibdk_vejviser_get_agency_link($branch),
+          'temporarilyClosedReason' => $tmpReason,
+          'actions' => $action,
+          'moreinfo' => $moreinfo,
+          'branchid' => $branch->branchId,
+        ));
 
     }
   }
 
   return $markup;
+
 }
 
 /**
