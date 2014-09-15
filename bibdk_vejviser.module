@@ -239,76 +239,34 @@ function bibdk_vejviser_agency_search() {
 
   global $user;
   $logged_in = ding_user_is_provider_user($user);
-
-  if (!empty($result) && $logged_in) {
+  $branches = array();
+  if (!empty($result)) {
     // add addtional html; button etc. to each branch
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
       // but show only button if pickup is allowed for this branch
-      if ($branch->pickupAllowed == '1') {
-        $addit = module_invoke_all('add_to_vejviser', $branch->branchId);
-        if (!empty($addit)) {
-          $branch->addit = $addit;
-        }
+      if ($branch->pickupAllowed == '1' && $logged_in) {
+        $action = module_invoke_all('add_to_vejviser', $branch->branchId);
       }
-    }
-  }
-  $markup = theme('bibdk_vejviser-header', array('search_form' => $raw, 'count' => sizeof($result),'ting_info_holder' => 'ting_info_holder'));
-  return $markup . '<br/>' . bibdk_vejviser_agency_search_generate_result_list($result);
-}
-
-function bibdk_vejviser_agency_search_generate_result_list($result) {
-
-  $markup = '';
-
-  global $language;
-  if ($result) {
-    foreach ($result as $branch) {
-      $action = isset($branch->addit[0]) ? $action = $branch->addit[0] : $action = '';
-      $moreinfo = theme('ting_agency_more_info', array(
-          'branch' => $branch,
-          'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-          'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-          'address' => theme('ting_agency_address', array('branch' => $branch)),
-          'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
-          'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
-          'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-        )
-
+      $settings = array(
+        '#actions' => $action,
+        '#agencyName' => bibdk_vejviser_get_agency_link($branch),
       );
-
-      // Handle TemporarilyClosedReason
-      $tmpReason = $branch->getTemporarilyClosedReason($language->language);
-      if($tmpReason != 'ting_agency_no_temporarilyClosedReason') {
-        // Hide all drupalmessages
-        $messages = drupal_get_messages();
-        // Set  message for temporarilyClosedReason
-        drupal_set_message($tmpReason, 'warning');
-        $tmpReason = theme('status_messages');
-        // Restore old messages
-        foreach ($messages as $key=>$message) {
-          drupal_set_message($message[0],$key);
-        }
-      }
-      else {
-        $tmpReason = '';
-      }
-
-
-      $markup .= theme('ting_agency_library',
-        array('branchName' => $branch->getBranchName($language->language),
-          'agencyName' => bibdk_vejviser_get_agency_link($branch),
-          'temporarilyClosedReason' => $tmpReason,
-          'actions' => $action,
-          'moreinfo' => $moreinfo,
-          'branchid' => $branch->branchId,
-        ));
-
+      $branches[] = ting_agency_view_agency_branch($branch, $settings);
     }
   }
 
-  return $markup;
+  $render['header'] = array(
+    '#theme' => 'bibdk_vejviser_header',
+    '#search_form' => $raw,
+    '#count' => sizeof($result),
+    '#ting_info_holder' => 'ting_info_holder',
+  );
 
+  $render['branches'] = $branches;
+
+
+  return $render;
 }
 
 /**
