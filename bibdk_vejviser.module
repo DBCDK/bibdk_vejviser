@@ -245,6 +245,7 @@ function bibdk_vejviser_agency_search() {
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
       // but show only button if pickup is allowed for this branch
+      $action = null;
       if ($branch->pickupAllowed == '1' && $logged_in) {
         $action = module_invoke_all('add_to_vejviser', $branch->branchId);
       }
