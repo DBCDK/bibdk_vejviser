@@ -126,6 +126,7 @@ function bibdk_vejviser_form($form, &$form_state) {
     '#attributes' => array(
       'placeholder' => t('Library name, zip or city'),
       'class' => array('search-input-field'),
+      'id' => 'edit-openagency-query',
     ),
     '#autocomplete_path' => 'vejviser/autocomplete',
   );
@@ -297,7 +298,8 @@ function bibdk_vejviser_execute_agency_search($query) {
   if (empty($query)) return;
 
   $client = new ting_client_class();
-  $resp = $client->do_request('agency', array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
+  $resp = $client->do_request('agency', array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest', 'outputType'=>'json'));
+
   //$resp = $client->do_request('agency', array('agencyName' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
   return bibdk_vejviser_handle_response($resp);
 }
