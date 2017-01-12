@@ -220,7 +220,6 @@ function bibdk_vejviser_agency_search() {
   if (isset($_REQUEST['agencyId'])) {
     // Agency pickup search
     $result = bibdk_vejviser_execute_pickup_agency_search($_REQUEST['agencyId']);
-
   }
   elseif (!isset($_REQUEST['openagency_query'])) {
     drupal_static('bibdk_vejviser_empty_result', 1);
@@ -247,6 +246,7 @@ function bibdk_vejviser_agency_search() {
       // check if any modules has anything to add to branch
       // but show only button if pickup is allowed for this branch
       $action = null;
+      /** @var TingClientAgencyBranch $branch */
       if ($branch->pickupAllowed == '1' && $logged_in) {
         $action = module_invoke_all('add_to_vejviser', $branch->branchId);
       }
@@ -254,7 +254,8 @@ function bibdk_vejviser_agency_search() {
         '#actions' => $action,
         '#agencyName' => bibdk_vejviser_get_agency_link($branch),
       );
-      $branches[] = ting_agency_view_agency_branch($branch, $settings);
+      $branch_render = ting_agency_view_agency_branch($branch, $settings);
+      $branches[] = $branch_render;
     }
   }
 
@@ -299,7 +300,6 @@ function bibdk_vejviser_execute_agency_search($query) {
 
   $client = new ting_client_class();
   $resp = $client->do_request('agency', array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest', 'outputType'=>'json'));
-
   //$resp = $client->do_request('agency', array('agencyName' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
   return bibdk_vejviser_handle_response($resp);
 }
@@ -315,7 +315,12 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
   $client = new ting_client_class();
   // Call pickupAgencyListRequest service parm: agencyId
 //  $resp = $client->do_agency(array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
-  $resp = $client->do_request('agency', array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
+  $params = array(
+    'agencyId' => $agencyId,
+    'action' => 'pickupAgencyListRequest',
+    'outputType' => 'json'
+  );
+  $resp = $client->do_request('agency', $params);
   return bibdk_vejviser_handle_agency_response($resp);
 }
 
