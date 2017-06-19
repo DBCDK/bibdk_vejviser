@@ -117,7 +117,6 @@ function _bibdk_vejviser_create_render_array($delta) {
 function bibdk_vejviser_form($form, &$form_state) {
   $value = isset($form_state['input']['openagency_query']) ? $form_state['input']['openagency_query'] : NULL;
   if (!empty($value)) {
-
     drupal_set_message(t('search results for %value', array('%value' => str_replace('*', '?', $value))), 'status');
   }
 
@@ -148,7 +147,6 @@ function bibdk_vejviser_form($form, &$form_state) {
     ),
 
   );
-
 
   drupal_add_js(drupal_get_path('module', 'bibdk_vejviser') . '/js/bibdk_vejviser.js');
 
@@ -191,7 +189,7 @@ function bibdk_vejviser_theme() {
       'path'            => $path,
       'variables'       => array('count' => '', 'search_form' => '', 'ting_info_holder' => 'ting_info_holder'),
       'template'        => 'bibdk_vejviser_header',
-    ),
+    )
   );
   return $bibdk_vejviser_theme_array;
 }
@@ -282,7 +280,7 @@ function bibdk_vejviser_get_agency_link($branch) {
     return $branch->agencyName;
   }
   else {
-    return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))) . "    " . t('ting_show_all_libraries'));
+    return ( l($branch->agencyName, 'vejviser/', array('attributes' => array('class' => array('agencylist-link')), 'query' => array('agencyId' => $branch->agencyId))));
   }
 }
 
