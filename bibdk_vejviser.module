@@ -296,9 +296,21 @@ function bibdk_vejviser_execute_agency_search($query) {
   $sort[] = variable_get('agency_sort_agencyid', 'agencyId');
   if (empty($query)) return;
 
-  $client = new ting_client_class();
-  $resp = $client->do_request('agency', array('anyField' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest', 'outputType'=>'json'));
-  //$resp = $client->do_request('agency', array('agencyName' => $query, 'sort' => $sort, 'action' => 'findLibraryRequest'));
+  $params = array(
+    'anyField' => $query,
+    'sort' => $sort,
+    'action' => 'findLibraryRequest',
+    'outputType'=>'json'
+  );
+
+  if (module_exists('ting_client')) {
+    $resp = ting_client_do_request('agency', $params);
+  }
+  else {
+    $client = new ting_client_class();
+    $resp = $client->do_request('agency', $params);
+  }
+
   return bibdk_vejviser_handle_response($resp);
 }
 
@@ -310,15 +322,19 @@ function bibdk_vejviser_execute_agency_search($query) {
 function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
   //Find pickup_agencyIds for agencyId
   if (empty($agencyId)) return;
-  $client = new ting_client_class();
-  // Call pickupAgencyListRequest service parm: agencyId
-//  $resp = $client->do_agency(array('agencyId' => $agencyId, 'action' => 'pickupAgencyListRequest'));
+
   $params = array(
     'agencyId' => $agencyId,
     'action' => 'pickupAgencyListRequest',
     'outputType' => 'json'
   );
-  $resp = $client->do_request('agency', $params);
+  if (module_exists('ting_client')) {
+    $resp = ting_client_do_request('agency', $params);
+  }
+  else {
+    $client = new ting_client_class();
+    $resp = $client->do_request('agency', $params);
+  }
   return bibdk_vejviser_handle_agency_response($resp);
 }
 
