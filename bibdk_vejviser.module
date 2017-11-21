@@ -303,13 +303,11 @@ function bibdk_vejviser_execute_agency_search($query) {
     'outputType'=>'json'
   );
 
-  if (module_exists('ting_client')) {
-    $resp = ting_client_do_request('agency', $params);
+  if (!class_exists('TingClient') && module_exists('libraries')) {
+    libraries_load('TingClient');
   }
-  else {
-    $client = new ting_client_class();
-    $resp = $client->do_request('agency', $params);
-  }
+  $client = new ting_client_class();
+  $resp = $client->do_request('agency', $params);
 
   return bibdk_vejviser_handle_response($resp);
 }
@@ -328,13 +326,11 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
     'action' => 'pickupAgencyListRequest',
     'outputType' => 'json'
   );
-  if (module_exists('ting_client')) {
-    $resp = ting_client_do_request('agency', $params);
+  if (!class_exists('TingClient') && module_exists('libraries')) {
+    libraries_load('TingClient');
   }
-  else {
-    $client = new ting_client_class();
-    $resp = $client->do_request('agency', $params);
-  }
+  $client = new ting_client_class();
+  $resp = $client->do_request('agency', $params);
   return bibdk_vejviser_handle_agency_response($resp);
 }
 
