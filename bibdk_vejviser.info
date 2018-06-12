@@ -5,6 +5,8 @@ core = 7.x
 version = 7.x-0.25
 
 dependencies[] = ting_agency
+dependencies[] = ding_user
 
 files[] = test/bibdk_vejviser.test
 files[] = test/bibdk_vejviser.autocomplete.test
+files[] = test/netpunkt_vejviser_webtests.test
