@@ -82,5 +82,8 @@ function bibdk_vejviser_autocomplete_agency_list($agencies) {
  * Set/update variable with the agency names
  */
 function bibdk_vejviser_cron() {
-  bibdk_vejviser_autocomplete_get_all_agency_names();
+  // don't run if in installation mode
+ if(!drupal_installation_attempted()) {
+   bibdk_vejviser_autocomplete_get_all_agency_names();
+ }
 }
