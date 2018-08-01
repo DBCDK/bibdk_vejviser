@@ -229,9 +229,13 @@ function bibdk_vejviser_agency_search() {
     return $raw;
   }
 
+  if (!drupal_validate_utf8($_REQUEST['openagency_query'])) {
+    drupal_set_message(t('Search string contain invalid characters.', array(), array('context' => 'bibdk_vejviser')), 'error');
+    return $raw;
+  }
   if (isset($_REQUEST['openagency_query'])) {
     // Agency  query search
-    $query = check_plain($_REQUEST['openagency_query']);
+    $query = $_REQUEST['openagency_query'];
     $result = bibdk_vejviser_execute_agency_search($query);
   }
 
