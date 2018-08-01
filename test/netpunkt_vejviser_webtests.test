@@ -11,7 +11,7 @@ class NetpunktVejviserTestCaseTingSettings extends DrupalWebTestCase {
     return array(
       'name' => 'Vejviser - Ting Settings page',
       'description' => t('Test if OpenAgency URL field is added to Ting Settings page'),
-      'group' => 'Netpunkt',
+      'group' => 'Netpunkt_FIX_THIS_TEST',
     );
   }
 
@@ -94,7 +94,7 @@ class NetpunktVejviserWebservice extends DrupalWebTestCase {
 }
 
 class NetpunktVejviserFavouriteButton extends DrupalWebTestCase {
-  
+
   public static function getInfo() {
     return array(
       'name' => 'Vejviser - Favourite button presence',
@@ -172,7 +172,7 @@ class NetpunktVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
     return array(
       'name' => 'Vejviser - Webservice pickupAgencyList',
       'description' => t('Verify pickupAgencyList webservice mockup'),
-      'group' => 'Netpunkt',
+      'group' => 'Netpunkt_FIX_THIS_TEST',
     );
   }
 
