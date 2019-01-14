@@ -278,7 +278,7 @@ function bibdk_vejviser_agency_search() {
 
 /**
  * create agency_link and return. ex: http://dringo.dbc.dk/ana.ding/da/vejviser/?agencyId=830070
- * @param String $branch
+ * @param \TingClientAgencyBranch $branch
  * @return string
  */
 function bibdk_vejviser_get_agency_link($branch) {
@@ -306,7 +306,8 @@ function bibdk_vejviser_execute_agency_search($query) {
     'anyField' => $query,
     'sort' => $sort,
     'action' => 'findLibraryRequest',
-    'outputType'=>'json'
+    'outputType'=>'json',
+    'libraryStatus' => variable_get('AgencyRequest_library_status', ''),
   );
 
   $client = new ting_client_class();
@@ -350,8 +351,7 @@ function bibdk_vejviser_handle_response($response) {
     return $agencies;
   }
   else if (isset($response->error)) {
-    $error = $this->getValue($response->error);
-    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+    drupal_set_message(t($response->error, array(), array('context' => 'bibdk_vejviser')), 'error');
   }
   else if (!isset($response->error) && !isset($response->pickupAgency)) {
     $error = t('no_libraries_found_and_no_errors_reported');
@@ -379,8 +379,7 @@ function bibdk_vejviser_handle_agency_response($response) {
     return $agencies;
   }
   else if (isset($response->error)) {
-    $error = $this->getValue($response->error);
-    drupal_set_message(t($error, array(), array('context' => 'bibdk_vejviser')), 'error');
+    drupal_set_message(t($response->error, array(), array('context' => 'bibdk_vejviser')), 'error');
   }
   else if (!isset($response->error) && !isset($response->pickupAgency)) {
     $error = t('no_libraries_found_and_no_errors_reported');
