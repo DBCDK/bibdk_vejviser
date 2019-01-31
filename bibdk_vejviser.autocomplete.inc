@@ -1,8 +1,10 @@
 <?php
 
-/** Callback for vejviser autocomplete functionality
+/**
+ * Callback for vejviser autocomplete functionality
  *
  * @param $string
+ * @throws \Exception
  */
 function bibdk_vejviser_get_autocomplete_data($string) {
   // Get a list of agency names
@@ -17,17 +19,24 @@ function bibdk_vejviser_get_autocomplete_data($string) {
   drupal_exit();
 }
 
-/** Get at list of all agency names. If list does not exists in cache. Retrieve a
- * new list from webservice.
+/**
+ * Get at list of all agency names. If list does not exists in cache.
+ * Retrieve a new list from webservice.
  *
  * @return array
+ * @throws \Exception
  */
 function bibdk_vejviser_autocomplete_get_all_agency_names() {
   $agencies = cache_get('bibdk_vejviser_agency_autocomplete_names', 'cache');
   if (!$agencies) {
     $result = bibdk_vejviser_execute_agency_search('?');
     $agencies = bibdk_vejviser_autocomplete_agency_list($result);
-    cache_set('bibdk_vejviser_agency_autocomplete_names', $agencies, 'cache', time() + 24 * 60 * 60);
+    cache_set(
+      'bibdk_vejviser_agency_autocomplete_names',
+      $agencies,
+      'cache',
+      time() + 24 * 60 * 60
+    );
   }
   else {
     $agencies = $agencies->data;
@@ -37,7 +46,8 @@ function bibdk_vejviser_autocomplete_get_all_agency_names() {
 }
 
 
-/** Method to extract Agencies that matches a given string
+/**
+ * Method to extract Agencies that matches a given string
  *
  * @param $string
  * @param $agency_names array of agencies
@@ -52,17 +62,24 @@ function bibdk_vejviser_autocomplete_agency_name_match($string, $agency_names) {
 
   foreach ($agency_names as $key => $name) {
     if (preg_match("/$string/iu", $key, $match)) {
-      $data[$key] = preg_replace("/" . $match[0] . "/i", '<b>' . $match[0] . '</b>', $key);
+      $data[$key] = preg_replace(
+        "/" . $match[0] . "/i",
+        '<b>' . $match[0] . '</b>', $key
+      );
     }
     elseif (preg_match("/$string/iu", $name, $match)) {
-      $data[$key] = preg_replace("/" . $match[0] . "/i", '<b>' . $match[0] . '</b>', $name);
+      $data[$key] = preg_replace(
+        "/" . $match[0] . "/i",
+        '<b>' . $match[0] . '</b>', $name
+      );
     }
   }
 
   return $data;
 }
 
-/** Extract branchnames from branch objects
+/**
+ * Extract branchnames from branch objects
  *
  * @param $agencies
  * @return array
@@ -70,16 +87,22 @@ function bibdk_vejviser_autocomplete_agency_name_match($string, $agency_names) {
 function bibdk_vejviser_autocomplete_agency_list($agencies) {
   $names = array();
   if (!empty($agencies)) {
+    /** @var \TingClientAgencyBranch $branch */
     foreach ($agencies as $branch) {
       // Use shortname if it exists, else use branchname
-      $names[$branch->getBranchName()] = ($branch->getBranchShortName() != 'ting_agency_no_shortbranch_name') ? $branch->getBranchShortName() : $branch->getBranchName();
+      $names[$branch->getBranchName()] = (
+        $branch->getBranchShortName() !== "ting_agency_no_shortbranch_name"
+      ) ? $branch->getBranchShortName() : $branch->getBranchName();
     }
   }
   return $names;
 }
 
-/** Implements hook_cron
+/**
+ * Implements hook_cron
  * Set/update variable with the agency names
+ *
+ * @throws \Exception
  */
 function bibdk_vejviser_cron() {
   // don't run if in installation mode
