@@ -316,10 +316,13 @@ function bibdk_vejviser_agency_search() {
       $branches[] = $branch_render;
     }
   }
+  $count = (function_exists('is_countable')) ?
+    is_countable($result) ? sizeof($result) : '0' :
+    isset($result) ? sizeof($result) : '0';
   $render['header'] = array(
     '#theme' => 'bibdk_vejviser_header',
     '#search_form' => $raw,
-    '#count' => isset($result) ? sizeof($result) : '0',
+    '#count' => $count,
     '#ting_info_holder' => 'ting_info_holder',
   );
 
