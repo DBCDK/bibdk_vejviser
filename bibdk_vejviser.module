@@ -316,11 +316,10 @@ function bibdk_vejviser_agency_search() {
       $branches[] = $branch_render;
     }
   }
-
   $render['header'] = array(
     '#theme' => 'bibdk_vejviser_header',
     '#search_form' => $raw,
-    '#count' => sizeof($result),
+    '#count' => isset($result) ? sizeof($result) : '0',
     '#ting_info_holder' => 'ting_info_holder',
   );
 
@@ -516,4 +515,3 @@ function bibdk_vejviser_handle_agency_response($response) {
     drupal_goto('vejviser');
   }
 }
-
