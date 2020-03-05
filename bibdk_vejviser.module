@@ -317,8 +317,8 @@ function bibdk_vejviser_agency_search() {
     }
   }
   $count = (function_exists('is_countable')) ?
-    is_countable($result) ? sizeof($result) : '0' :
-    isset($result) ? sizeof($result) : '0';
+    ((isset($result)) ? is_countable($result) : '0')
+    : (isset($result)) ? sizeof($result) : '0';
   $render['header'] = array(
     '#theme' => 'bibdk_vejviser_header',
     '#search_form' => $raw,
