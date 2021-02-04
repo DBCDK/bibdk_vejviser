@@ -421,7 +421,7 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
  * The role of this function is quite limited.
  * It might be worth handling errors elsewhere and deprecate this function
  *
- * @param \stdClass $response
+ * @param mixed $response
  * @return array
  * @throws \Exception
  */
@@ -439,7 +439,7 @@ function bibdk_vejviser_handle_response($response) {
       'error'
     );
   }
-  else if (!isset($response->error) && !isset($response->pickupAgency)) {
+  else if (!isset($response->error) && !isset($response->pickupAgency) && (!($response instanceof VipCoreAgencyBranch))) {
     $error = t('no_libraries_found_and_no_errors_reported');
     drupal_set_message(
       t(
@@ -449,7 +449,6 @@ function bibdk_vejviser_handle_response($response) {
       ),
       'error'
     );
-
   } else {
     return array($response);
   }
