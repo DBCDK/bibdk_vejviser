@@ -312,7 +312,7 @@ function bibdk_vejviser_agency_search() {
         '#actions' => $action,
         '#agencyName' => bibdk_vejviser_get_agency_link($branch),
       );
-      $branch_render = netpunkt_agency_view_agency_branch($branch, $settings);
+      $branch_render = module_invoke_all('bibdk_vejviser_view_agency_branch', $branch, $settings);
       $branches[] = $branch_render;
     }
   }
