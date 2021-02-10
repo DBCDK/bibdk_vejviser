@@ -399,18 +399,8 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
   if (empty($agencyId)) return;
   if (!is_array($agencyId)) { $agencyId = array($agencyId); }
   $library_status = variable_get('AgencyRequest_library_status', '');
-  $resp = vip_core_pickupAgencyList($agencyId, null, null, null, null,
+  $agencies = vip_core_pickupAgencyList($agencyId, null, null, null, null,
                          array(), $library_status, null);
-  $agencies = array();
-  if (isset($resp->library) && is_array($resp->library)) {
-    foreach($resp->library AS $key => $library) {
-      $agencies[$key] = new VipCoreAgency($library);
-      /** @var VipCoreAgencyBranch $pickupAgencies */
-      $pickupAgencies = vip_core_findlibrary($agencies[$key]->getAgencyId());
-      $pickupAgencies->setAgencyName($agencies[$key]->getAgencyName());
-      $agencies[$key]->setPickUpAllowed($pickupAgencies);
-    }
-  }
 
   return bibdk_vejviser_handle_agency_response($agencies);
 }
