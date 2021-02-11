@@ -300,7 +300,7 @@ function bibdk_vejviser_agency_search() {
   $branches = array();
   if (!empty($result)) {
     // add addtional html; button etc. to each branch
-    /** @var VipCoreAgencyBranch|VipCoreAgency $branch */
+    /** @var VipCoreFindLibrary|VipCoreAgency $branch */
     foreach ($result as $branch) {
       // check if any modules has anything to add to branch
       // but show only button if pickup is allowed for this branch
@@ -334,7 +334,7 @@ function bibdk_vejviser_agency_search() {
  * create agency_link and return.
  * ex: http://dringo.dbc.dk/ana.ding/da/vejviser/?agencyId=830070
  *
- * @param VipCoreAgencyBranch $branch
+ * @param VipCoreFindLibrary $branch
  * @return string
  */
 function bibdk_vejviser_get_agency_link($branch) {
@@ -429,7 +429,7 @@ function bibdk_vejviser_handle_response($response) {
       'error'
     );
   }
-  else if (!isset($response->error) && !isset($response->pickupAgency) && (!($response instanceof VipCoreAgencyBranch))) {
+  else if (!isset($response->error) && !isset($response->pickupAgency) && (!($response instanceof VipCoreFindLibrary))) {
     $error = t('no_libraries_found_and_no_errors_reported');
     drupal_set_message(
       t(
