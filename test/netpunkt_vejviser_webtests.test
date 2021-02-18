@@ -19,7 +19,7 @@ class NetpunktVejviserTestCaseTingSettings extends DrupalWebTestCase {
    * Setting up the test
    */
   public function setUp() {
-    parent::setUp(array('bibdk_vejviser', 'ting_agency'));
+    parent::setUp(array('bibdk_vejviser', 'vip_core'));
   }
 
   /**
@@ -51,7 +51,7 @@ class NetpunktVejviserWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
   }
 
   public function testNoUserInput(){
@@ -104,7 +104,7 @@ class NetpunktVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
   }
 
   public function testNotLoggedInUser() {
@@ -181,7 +181,7 @@ class NetpunktVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
       array(
         'bibdk_vejviser',
         'openagency_webservice_mockup',
-        'ting_agency',
+        'vip_core',
         'ding_user',
         'netpunkt_webservice_test_settings',
         'features'
@@ -202,14 +202,14 @@ class NetpunktVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
     // Check for returntext -  Tlf. nr. 33 73 60 60.
     $this->assertRaw('33 73 60 60', 'Ok - Tlf. nr. 33 73 60 60 is a part of search result');
 
-    // Check for returntext -  ting_agency_librarydk_contact.
-    $this->assertRaw('ting_agency_librarydk_contact', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    // Check for returntext -  vip_core_librarydk_contact.
+    $this->assertRaw('vip_core_librarydk_contact', 'Ok - vip_core_librarydk_contact is a part of search result');
 
     // Check for returntext -  librarydkSupportPhone.
-    $this->assertRaw('librarydkSupportPhone', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    $this->assertRaw('librarydkSupportPhone', 'Ok - vip_core_librarydk_contact is a part of search result');
 
     // Check for returntext -  librarydkSupportEmail.
-    $this->assertRaw('librarydkSupportEmail', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    $this->assertRaw('librarydkSupportEmail', 'Ok - vip_core_librarydk_contact is a part of search result');
 
  }
 
@@ -230,7 +230,7 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
     parent::setup(
       array(
         'bibdk_vejviser',
-        'ting_agency',
+        'vip_core',
         'netpunkt_webservice_test_settings',
         'features',
         'netpunkt_mockup',

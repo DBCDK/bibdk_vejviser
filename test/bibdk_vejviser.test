@@ -19,7 +19,7 @@ class BibdkVejviserTestCaseTingSettings extends DrupalWebTestCase {
    * Setting up the test
    */
   public function setUp() {
-    parent::setUp(array('bibdk_vejviser', 'ting_openformat', 'ting_agency'));
+    parent::setUp(array('bibdk_vejviser', 'ting_openformat', 'vip_core'));
   }
 
   /**
@@ -52,7 +52,7 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
   public function setUp() {
     //$this->profile = 'minimal';
     //parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
   }
 
   public function testNoUserInput(){
@@ -104,7 +104,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser','openagency_webservice_mockup','ting_agency','bibdk_provider'));
+    parent::setup(array('bibdk_vejviser','openagency_webservice_mockup','vip_core','bibdk_provider'));
   }
 
   public function testNotLoggedInUser() {
@@ -178,7 +178,7 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'ting_agency','ding_user'));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core','ding_user'));
     // Setup agencyservice
     variable_set('agency_search_url', 'http://openagency.addi.dk/2.8/');
     variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
@@ -199,14 +199,14 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
     // Check for returntext -  33736062
     $this->assertRaw('33736062', 'Ok - 33736062 is a part of search result');
 
-    // Check for returntext -  ting_agency_librarydk_contact
-    $this->assertRaw('ting_agency_librarydk_contact', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    // Check for returntext -  vip_core_librarydk_contact
+    $this->assertRaw('vip_core_librarydk_contact', 'Ok - vip_core_librarydk_contact is a part of search result');
 
     // Check for returntext -  librarydkSupportPhone
-    $this->assertRaw('librarydkSupportPhone', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    $this->assertRaw('librarydkSupportPhone', 'Ok - vip_core_librarydk_contact is a part of search result');
 
     // Check for returntext -  librarydkSupportEmail
-    $this->assertRaw('librarydkSupportEmail', 'Ok - ting_agency_librarydk_contact is a part of search result');
+    $this->assertRaw('librarydkSupportEmail', 'Ok - vip_core_librarydk_contact is a part of search result');
 
     // Check for returntext -  librarydkSupportEmail
     // TODO: test not passing -svi
@@ -229,7 +229,7 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','ting_agency','bibdk_provider' ));
+    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','vip_core','bibdk_provider' ));
     variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
     variable_set('agency_search_url',  $this->getAbsoluteUrl('/openagency_webservice/'));
   }
@@ -258,8 +258,8 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
 
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('"branchName" correctly shown'));
-    $this->assertText('ting_agency_more_info', t('"ting_agency_more_info" correctly shown'));
-    $this->assertText('ting_agency_less_info', t('"ting_agency_less_info" correctly shown'));
+    $this->assertText('vip_core_more_info', t('"vip_core_more_info" correctly shown'));
+    $this->assertText('vip_core_less_info', t('"vip_core_less_info" correctly shown'));
     $this->assertText('9711 4115', t('"branchPhone" correctly shown'));
     $this->assertText('hadsundbibliotek@mariagerfjord.dk', t('"branchEmail" correctly shown'));
     $this->assertText('ikke udfyldt', t('"postalAddress" correctly shown'));
