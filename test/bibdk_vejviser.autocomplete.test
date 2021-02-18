@@ -127,7 +127,7 @@ class BibdkVejviserAutocompleteUnitTestCase extends DrupalWebTestCase {
 class BranchMock {
   private $branchName, $branchShortName;
 
-  public function __construct($branchname, $branchShortName = 'ting_agency_no_shortbranch_name'){
+  public function __construct($branchname, $branchShortName = 'vip_core_no_shortbranch_name'){
     $this->branchName = $branchname;
     $this->branchShortName = $branchShortName;
   }

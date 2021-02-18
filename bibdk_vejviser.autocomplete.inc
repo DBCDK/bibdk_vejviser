@@ -91,7 +91,7 @@ function bibdk_vejviser_autocomplete_agency_list($agencies) {
     foreach ($agencies as $branch) {
       // Use shortname if it exists, else use branchname
       $names[$branch->getBranchName()] = (
-        $branch->getBranchShortName() !== "ting_agency_no_shortbranch_name"
+        $branch->getBranchShortName() !== "vip_core_no_shortbranch_name"
       ) ? $branch->getBranchShortName() : $branch->getBranchName();
     }
   }

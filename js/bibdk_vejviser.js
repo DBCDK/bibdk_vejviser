@@ -1,12 +1,12 @@
 (function($) {
-  var bibdkVejviser = {}
+  var bibdkVejviser = {};
 
-  bibdkVejviser.sleepAndGo = function(methodToExecute, time){
-    setTimeout(methodToExecute, time)
+  bibdkVejviser.sleepAndGo = function(methodToExecute, time) {
+    setTimeout(methodToExecute, time);
   };
 
   bibdkVejviser.clickSubmit = function(){
-    var but = $('#edit-openagency-submit');
+    var but = $("#edit-openagency-submit");
     but.click();
   };
 
@@ -20,7 +20,7 @@
         $(this).val(value.replace("*", "?"));
       });
 
-      openagency_query.keyup(function(event){
+      openagency_query.keyup(function(event) {
         if(event.keyCode === 13) {
           // wait 0,01 sec to make the autocomplete go away
           bibdkVejviser.sleepAndGo(bibdkVejviser.clickSubmit, 100)
