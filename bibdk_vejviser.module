@@ -416,8 +416,7 @@ function bibdk_vejviser_execute_pickup_agency_search($agencyId) {
  * @throws \Exception
  */
 function bibdk_vejviser_handle_response($response) {
-
-  if (is_array($response)) {
+  if (!isset($response['error'])) {
     return $response;
   } else if (isset($response->error)) {
     drupal_set_message(
