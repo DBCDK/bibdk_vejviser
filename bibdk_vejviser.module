@@ -135,6 +135,7 @@ function bibdk_vejviser_form($form, &$form_state) {
       'placeholder' => t('Library name, zip or city'),
       'class' => array('search-input-field'),
       'id' => 'edit-openagency-query',
+      'autofocus' => 'autofocus'
     ),
     '#autocomplete_path' => 'vejviser/autocomplete',
   );
