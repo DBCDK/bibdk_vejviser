@@ -87,7 +87,7 @@ function bibdk_vejviser_autocomplete_agency_name_match($string, $agency_names) {
 function bibdk_vejviser_autocomplete_agency_list($agencies) {
   $names = array();
   if (!empty($agencies)) {
-    /** @var \TingClientAgencyBranch $branch */
+    /** @var VipCoreFindLibrary $branch */
     foreach ($agencies as $branch) {
       // Use shortname if it exists, else use branchname
       $names[$branch->getBranchName()] = (
