@@ -117,8 +117,7 @@ function _bibdk_vejviser_create_render_array($delta) {
  * @return array
  */
 function bibdk_vejviser_form($form, &$form_state) {
-  $value = isset($form_state['input']['openagency_query']) ?
-    $form_state['input']['openagency_query'] : NULL;
+  $value = $form_state['input']['openagency_query'] ?? NULL;
   if (!empty($value)) {
     drupal_set_message(
       t(
@@ -292,7 +291,7 @@ function bibdk_vejviser_agency_search() {
   }
   if (isset($_REQUEST['openagency_query'])) {
     // Agency  query search
-    $query = $_REQUEST['openagency_query'];
+    $query = str_replace('&amp;', '&', $_REQUEST['openagency_query']);
     $result = bibdk_vejviser_execute_agency_search($query);
   }
 
