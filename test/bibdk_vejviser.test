@@ -51,8 +51,8 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    //parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'devel'));
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
+    //parent::setup(array('bibdk_vejviser'', 'devel'));
+    parent::setup(array('bibdk_vejviser', 'vip_core'));
   }
 
   public function testNoUserInput(){
@@ -104,7 +104,7 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser','openagency_webservice_mockup','vip_core','bibdk_provider'));
+    parent::setup(array('bibdk_vejviser','vip_core','bibdk_provider'));
   }
 
   public function testNotLoggedInUser() {
@@ -178,7 +178,7 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core','ding_user'));
+    parent::setup(array('bibdk_vejviser', 'vip_core','ding_user'));
     // Setup agencyservice
     variable_set('agency_search_url', 'http://openagency.addi.dk/2.8/');
     variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
@@ -229,7 +229,7 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup','vip_core','bibdk_provider' ));
+    parent::setup(array('bibdk_vejviser','vip_core','bibdk_provider' ));
     variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
     variable_set('agency_search_url',  $this->getAbsoluteUrl('/openagency_webservice/'));
   }
