@@ -104,7 +104,7 @@ class NetpunktVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'vip_core'));
+    parent::setup(array('bibdk_vejviser', 'vip_core', 'netpunkt_composer'));
   }
 
   public function testNotLoggedInUser() {
