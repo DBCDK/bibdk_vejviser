@@ -70,7 +70,6 @@ class NetpunktVejviserWebservice extends DrupalWebTestCase {
 
     // set agency url
     global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
 
     $this->drupalPost(NULL, NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
     // there IS no error text ??
