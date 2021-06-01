@@ -51,7 +51,7 @@ class NetpunktVejviserWebservice extends DrupalWebTestCase {
 
   public function setUp() {
     //$this->profile = 'minimal';
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
+    parent::setup(array('bibdk_vejviser', 'vip_core'));
   }
 
   public function testNoUserInput(){
@@ -70,7 +70,6 @@ class NetpunktVejviserWebservice extends DrupalWebTestCase {
 
     // set agency url
     global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
 
     $this->drupalPost(NULL, NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
     // there IS no error text ??
@@ -104,7 +103,7 @@ class NetpunktVejviserFavouriteButton extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setup(array('bibdk_vejviser', 'openagency_webservice_mockup', 'vip_core'));
+    parent::setup(array('bibdk_vejviser', 'vip_core', 'netpunkt_composer'));
   }
 
   public function testNotLoggedInUser() {
@@ -180,7 +179,6 @@ class NetpunktVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
     parent::setup(
       array(
         'bibdk_vejviser',
-        'openagency_webservice_mockup',
         'vip_core',
         'ding_user',
         'netpunkt_webservice_test_settings',
@@ -231,6 +229,7 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
       array(
         'bibdk_vejviser',
         'vip_core',
+        'netpunkt_agency',
         'netpunkt_webservice_test_settings',
         'features',
         'netpunkt_mockup',
@@ -253,11 +252,10 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
     $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
     $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
 
-    $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->drupalPost('', array('openagency_query' => '784605'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     $this->assertText('Als Bibliotek', t('"branchName" correctly shown'));
-    $this->assertText('9711 4115', t('"branchPhone" correctly shown'));
+    $this->assertText('Mariagerfjord Bibliotekerne', t('"Agency name" correctly shown'));
     $this->assertText('hadsundbibliotek@mariagerfjord.dk', t('"branchEmail" correctly shown'));
-    $this->assertText('ikke udfyldt', t('"postalAddress" correctly shown'));
     $this->assertText('9560', t('"postalCode" correctly shown'));
     $this->assertText('Hadsund', t('"city" correctly shown'));
     //$this->assertText('http://www.branchWebsiteUrl.dk/', t('"branchWebsiteUrl" correctly shown'));
