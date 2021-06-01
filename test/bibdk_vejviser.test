@@ -71,7 +71,6 @@ class BibdkVejviserWebservice extends DrupalWebTestCase {
 
     // set agency url
     global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
 
     $this->drupalPost(NULL, NULL, t('Search'), array(), array(), 'bibdk-vejviser-form');
    // there IS no error text ??
@@ -122,12 +121,10 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
 
     $this->drupalLogout();
 
-    $url = variable_get('agency_search_url');
+    $url = variable_get('vip_core_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
-    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
-    $newUrl = variable_get('agency_search_url');
+    $newUrl = variable_get('vip_core_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
     $this->drupalPost('', array('openagency_query' => 'als'), t('Search'), array(), array(), 'bibdk-vejviser-form');
     //$this->assertNoRaw('bibdk-favourite-select-form', t('Reservation button is not present'));
@@ -145,12 +142,10 @@ class BibdkVejviserFavouriteButton extends DrupalWebTestCase {
     $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
     $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
 
-    $url = variable_get('agency_search_url');
+    $url = variable_get('vip_core_url');
     $this->assertNull($url, 'No URL set for Open Agency yet');
     global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
-    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
-    $newUrl = variable_get('agency_search_url');
+    $newUrl = variable_get('vip_core_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
 
     //enable favourite module
@@ -179,9 +174,6 @@ class BibdkVejviserPickupAgencyListWebservice extends DrupalWebTestCase {
   public function setUp() {
     //$this->profile = 'minimal';
     parent::setup(array('bibdk_vejviser', 'vip_core','ding_user'));
-    // Setup agencyservice
-    variable_set('agency_search_url', 'http://openagency.addi.dk/2.8/');
-    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
   }
 
  public function testpickupAgencyListData(){
@@ -230,8 +222,6 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setup(array('bibdk_vejviser','vip_core','bibdk_provider' ));
-    variable_set('agency_search_xsd_url',$this->getAbsoluteUrl('/openagency_webservice/openagency.xsd'));
-    variable_set('agency_search_url',  $this->getAbsoluteUrl('/openagency_webservice/'));
   }
 
   public function testLibraryData() {
@@ -250,7 +240,7 @@ class BibdkVejviserTestLibraryData extends DrupalWebTestCase {
     $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
 
    // variable_set('agency_search_url', $base_url.'/openagency_webservice/');
-    $newUrl = variable_get('agency_search_url');
+    $newUrl = variable_get('vip_core_url');
 
     debug($newUrl);
 
