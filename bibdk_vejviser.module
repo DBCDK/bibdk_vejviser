@@ -453,7 +453,7 @@ function bibdk_vejviser_handle_response($response) {
  * pickupAgencyListResponse will be passed for all
  * pickupAgencyListResponse->library[0]->pickupAgency for display
  *
- * @param array $response
+ * @param array|object $response
  * @return array
  * @throws \Exception
  */
