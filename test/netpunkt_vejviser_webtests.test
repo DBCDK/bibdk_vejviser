@@ -233,14 +233,13 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
         'netpunkt_webservice_test_settings',
         'features',
         'netpunkt_mockup',
+        'netpunkt_provider'
       )
     );
   }
 
   public function testLibraryData() {
-    global $base_url;
-
-    // log in user and set block
+    // Create user, authenticate user and set block
     $account = $this->drupalCreateUser(array('access content','administer blocks', 'search content'));
     $this->drupalLogin($account);
 
@@ -258,15 +257,5 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
     $this->assertText('hadsundbibliotek@mariagerfjord.dk', t('"branchEmail" correctly shown'));
     $this->assertText('9560', t('"postalCode" correctly shown'));
     $this->assertText('Hadsund', t('"city" correctly shown'));
-    //$this->assertText('http://www.branchWebsiteUrl.dk/', t('"branchWebsiteUrl" correctly shown'));
-    //$this->assertText('http://branchWebsiteUrl.dk/serviceDeclarationUrl/', t('"serviceDeclarationUrl" correctly shown'));
-    // $this->assertText('http://branchWebsiteUrl.dk/userStatusUrl/', t('"userStatusUrl" correctly shown'));
-    //$this->assertText('openingHours eng', t('"openingHours" (in english) correctly shown'));
-    //$this->assertNoText('openingHours dan', t('"openingHours" (in danish) correctly not shown'));
   }
-
-
-
-
-
 }
