@@ -232,7 +232,6 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
         'netpunkt_agency',
         'netpunkt_webservice_test_settings',
         'features',
-        'netpunkt_mockup',
         'netpunkt_provider'
       )
     );
