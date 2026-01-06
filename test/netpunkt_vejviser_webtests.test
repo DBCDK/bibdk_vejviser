@@ -250,8 +250,8 @@ class NetpunktVejviserTestLibraryData extends DrupalWebTestCase {
     $this->drupalPost('admin/structure/block', array('blocks[bibdk_vejviser_header_action][region]' => 'content'), 'Save blocks');
     $this->assertFieldByName('blocks[bibdk_vejviser_header_action][region]', 'content', 'bibdk_vejviser_header_action block is enabled in content: successfully verified.');
 
-    $this->drupalPost('', array('openagency_query' => '784605'), t('Search'), array(), array(), 'bibdk-vejviser-form');
-    $this->assertText('Als Bibliotek', t('"branchName" correctly shown'));
+    $this->drupalPost('', array('openagency_query' => '784602'), t('Search'), array(), array(), 'bibdk-vejviser-form');
+    $this->assertText('Hadsund Bibliotek', t('"branchName" correctly shown'));
     $this->assertText('Mariagerfjord Bibliotekerne', t('"Agency name" correctly shown'));
     $this->assertText('hadsundbibliotek@mariagerfjord.dk', t('"branchEmail" correctly shown'));
     $this->assertText('9560', t('"postalCode" correctly shown'));
